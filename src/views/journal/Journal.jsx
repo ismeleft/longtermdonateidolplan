@@ -295,7 +295,7 @@ const Journal = ({ idolName, onBackToWelcome }) => {
         <button className="back-button" onClick={onBackToWelcome}>
           返回主頁
         </button>
-        <h2>海外藝術青年 {idolName} 的成長日誌</h2>
+        <h2>《我的{idolName}在海外長大中！》 </h2>
       </div>
 
       {/* 統計概覽 */}
