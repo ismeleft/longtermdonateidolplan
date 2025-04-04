@@ -13,53 +13,74 @@ const Setup = ({ onComplete }) => {
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
-  const handlePhotoUpload = (e) => {
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append(
+      "upload_preset",
+      import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+    );
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${
+          import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+        }/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await response.json();
+      return data.secure_url;
+    } catch (error) {
+      console.error("上傳到 Cloudinary 失敗:", error);
+      throw error;
+    }
+  };
+
+  const handlePhotoUpload = async (e) => {
     const files = Array.from(e.target.files);
-    setUploadError(""); // 清除之前的错误提示
+    setUploadError("");
+    setLoading(true);
 
-    // 检查文件数量
-    if (files.length > 3) {
-      setUploadError("一次最多只能上傳3張照片");
-      return;
-    }
+    try {
+      // 檢查文件數量和大小的邏輯保持不變
+      if (files.length > 3) {
+        setUploadError("一次最多只能上傳3張照片");
+        return;
+      }
 
-    // 检查文件总大小
-    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-    if (totalSize > 15 * 1024 * 1024) {
-      // 15MB
-      setUploadError("照片總大小不能超過 15MB");
-      return;
-    }
+      const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+      if (totalSize > 15 * 1024 * 1024) {
+        setUploadError("照片總大小不能超過 15MB");
+        return;
+      }
 
-    const filePromises = files.map((file) => {
-      return new Promise((resolve) => {
-        // 检查单个文件大小
+      // 上傳到 Cloudinary
+      const uploadPromises = files.map(async (file) => {
         if (file.size > 5 * 1024 * 1024) {
-          // 5MB
           setUploadError("單張照片不能超過 5MB");
-          resolve(null);
-          return;
+          return null;
         }
 
-        // 检查文件类型
         if (!file.type.startsWith("image/")) {
           setUploadError("只能上傳圖片文件");
-          resolve(null);
-          return;
+          return null;
         }
 
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = () => {
-          setUploadError("照片讀取失敗，請重試");
-          resolve(null);
-        };
-        reader.readAsDataURL(file);
+        try {
+          const cloudinaryUrl = await uploadToCloudinary(file);
+          return cloudinaryUrl;
+        } catch (error) {
+          setUploadError("照片上傳失敗，請重試");
+          return null;
+        }
       });
-    });
 
-    Promise.all(filePromises).then((results) => {
+      const results = await Promise.all(uploadPromises);
       const validResults = results.filter((result) => result !== null);
+
       if (validResults.length > 0) {
         setPhotos((prevPhotos) => {
           const newPhotos = [...prevPhotos];
@@ -71,7 +92,11 @@ const Setup = ({ onComplete }) => {
           return newPhotos;
         });
       }
-    });
+    } catch (error) {
+      setUploadError("上傳過程發生錯誤，請重試");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNext = async () => {
@@ -84,7 +109,7 @@ const Setup = ({ onComplete }) => {
       try {
         const idolDoc = await addDoc(collection(db, "idols"), {
           idolName,
-          photos,
+          photos, // 現在存儲的是 Cloudinary URL
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
         });
