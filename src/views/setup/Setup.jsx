@@ -52,15 +52,15 @@ const Setup = ({ onComplete }) => {
       }
 
       const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-      if (totalSize > 15 * 1024 * 1024) {
-        setUploadError("照片總大小不能超過 15MB");
+      if (totalSize > 10 * 1024 * 1024) {
+        setUploadError("照片總大小不能超過 10MB");
         return;
       }
 
       // 上傳到 Cloudinary
       const uploadPromises = files.map(async (file) => {
-        if (file.size > 5 * 1024 * 1024) {
-          setUploadError("單張照片不能超過 5MB");
+        if (file.size > 2 * 1024 * 1024) {
+          setUploadError("單張照片不能超過 2MB");
           return null;
         }
 
