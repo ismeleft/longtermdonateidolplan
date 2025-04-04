@@ -1,6 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const Welcome = ({ onStart, userData, onJournalClick }) => {
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // 根据屏幕宽度计算卡片位置
+  const getCardTransform = (index) => {
+    const isMobile = windowWidth <= 768;
+    const isSmallMobile = windowWidth <= 480;
+    const isTinyMobile = windowWidth <= 360;
+
+    let translateX = (index - 1) * 160;
+    let rotate = (index - 1) * 5;
+
+    if (isTinyMobile) {
+      translateX = (index - 1) * 120;
+      rotate = (index - 1) * 3;
+    } else if (isSmallMobile) {
+      translateX = (index - 1) * 140;
+      rotate = (index - 1) * 4;
+    } else if (isMobile) {
+      translateX = (index - 1) * 160;
+      rotate = (index - 1) * 5;
+    }
+
+    return `translateX(${translateX}px) rotate(${rotate}deg)`;
+  };
+
   return (
     <div className="welcome-container">
       <div className="main-content">
@@ -21,9 +57,7 @@ const Welcome = ({ onStart, userData, onJournalClick }) => {
                 key={index}
                 className="card"
                 style={{
-                  transform: `translateX(${(index - 1) * 160}px) rotate(${
-                    (index - 1) * 5
-                  }deg)`,
+                  transform: getCardTransform(index),
                   zIndex: index,
                 }}
               >
@@ -37,9 +71,7 @@ const Welcome = ({ onStart, userData, onJournalClick }) => {
                   key={index}
                   className="card empty"
                   style={{
-                    transform: `translateX(${(index - 1) * 160}px) rotate(${
-                      (index - 1) * 5
-                    }deg)`,
+                    transform: getCardTransform(index),
                     zIndex: index,
                   }}
                 >

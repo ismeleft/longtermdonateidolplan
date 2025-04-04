@@ -616,6 +616,8 @@ button[type="button"]:hover {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header {
@@ -1710,31 +1712,40 @@ textarea.setup-input {
     padding: 16px;
     height: auto;
     min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
   }
 
   .main-content {
     padding: 16px 0;
     gap: 16px;
+    width: 100%;
   }
 
   .large-text {
     font-size: 28px;
     padding: 0 16px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .text-part {
     display: block;
     margin-bottom: 8px;
+    width: 100%;
   }
 
   .idol-name {
     font-size: 32px;
     margin: 16px 0;
+    width: 100%;
+    text-align: center;
   }
 
   .photo-cards {
     height: 260px;
     margin: 32px 0;
+    width: 100%;
   }
 
   .card {
@@ -1755,6 +1766,7 @@ textarea.setup-input {
   .action-button {
     width: 100%;
     padding: 0 16px;
+    box-sizing: border-box;
   }
 
   .start-button,
@@ -1762,6 +1774,7 @@ textarea.setup-input {
     width: 100%;
     padding: 12px;
     font-size: 16px;
+    box-sizing: border-box;
   }
 
   .footer {
@@ -1769,16 +1782,23 @@ textarea.setup-input {
     gap: 12px;
     padding: 16px;
     margin-top: 32px;
+    width: 100%;
   }
 
   .morse-code {
     font-size: 10px;
     padding: 8px;
     justify-content: center;
+    width: 100%;
+    flex-wrap: wrap;
   }
 }
 
 @media (max-width: 480px) {
+  .welcome-container {
+    padding: 12px;
+  }
+
   .large-text {
     font-size: 24px;
   }
@@ -1791,15 +1811,11 @@ textarea.setup-input {
     height: 220px;
   }
 
-  .card {
-    width: 140px;
-    height: 190px;
-    margin-left: -70px;
-  }
-
+  .card,
   .card.empty {
     width: 140px;
     height: 190px;
+    margin-left: -70px;
   }
 
   .card-placeholder {
@@ -1808,6 +1824,10 @@ textarea.setup-input {
 }
 
 @media (max-width: 360px) {
+  .welcome-container {
+    padding: 10px;
+  }
+
   .large-text {
     font-size: 20px;
   }
@@ -1820,15 +1840,11 @@ textarea.setup-input {
     height: 200px;
   }
 
-  .card {
-    width: 120px;
-    height: 160px;
-    margin-left: -60px;
-  }
-
+  .card,
   .card.empty {
     width: 120px;
     height: 160px;
+    margin-left: -60px;
   }
 
   .card-placeholder {

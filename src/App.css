@@ -1,13 +1,12 @@
-/* #root {
+#root {
   width: 100%;
   margin: 0;
   padding: 0;
   text-align: center;
-  background: linear-gradient(135deg, #0f1123 0%, #16171f 100%);
-  color: #fff;
-  overflow: hidden;
+  overflow-x: hidden;
   position: relative;
-} */
+  box-sizing: border-box;
+}
 
 .welcome-page {
   display: flex;
@@ -17,6 +16,8 @@
   padding: 2rem;
   position: relative;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .welcome-page h1 {
@@ -27,6 +28,8 @@
   z-index: 1;
   color: #b8b9c3;
   font-weight: normal;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .idol-name {
@@ -40,6 +43,8 @@
   font-weight: bold;
   letter-spacing: 0.2em;
   text-shadow: 0 2px 15px rgba(67, 233, 123, 0.2);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* 照片卡片容器 */
@@ -48,6 +53,8 @@
   gap: 2rem;
   margin-top: 3rem;
   perspective: 1000px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .photo-card {
@@ -168,6 +175,9 @@
   margin-top: 2rem;
   text-transform: uppercase;
   letter-spacing: 2px;
+  width: 100%;
+  max-width: 300px;
+  box-sizing: border-box;
 }
 
 .journal-button:hover {
@@ -222,6 +232,60 @@
 
   .idol-name {
     font-size: 3rem;
+  }
+
+  .journal-button {
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .welcome-page {
+    padding: 1.5rem;
+  }
+
+  .welcome-page h1 {
+    font-size: 1.3rem;
+  }
+
+  .idol-name {
+    font-size: 2.5rem;
+  }
+
+  .photo-card {
+    width: 240px;
+    height: 320px;
+  }
+
+  .journal-button {
+    max-width: 220px;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-page {
+    padding: 1rem;
+  }
+
+  .welcome-page h1 {
+    font-size: 1.1rem;
+  }
+
+  .idol-name {
+    font-size: 2rem;
+  }
+
+  .photo-card {
+    width: 200px;
+    height: 280px;
+  }
+
+  .journal-button {
+    max-width: 200px;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.8rem;
   }
 }
 
