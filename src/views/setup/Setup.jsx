@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { db } from "../../firebase";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 
@@ -10,6 +10,7 @@ const Setup = ({ onComplete }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -20,6 +21,14 @@ const Setup = ({ onComplete }) => {
 
     const filePromises = files.map((file) => {
       return new Promise((resolve) => {
+        // 检查文件大小
+        if (file.size > 5 * 1024 * 1024) {
+          // 5MB
+          alert("照片大小不能超過 5MB");
+          resolve(null);
+          return;
+        }
+
         const reader = new FileReader();
         reader.onload = (e) => resolve(e.target.result);
         reader.readAsDataURL(file);
@@ -27,7 +36,18 @@ const Setup = ({ onComplete }) => {
     });
 
     Promise.all(filePromises).then((results) => {
-      setPhotos(results);
+      const validResults = results.filter((result) => result !== null);
+      if (validResults.length > 0) {
+        setPhotos((prevPhotos) => {
+          const newPhotos = [...prevPhotos];
+          validResults.forEach((result, index) => {
+            if (newPhotos.length < 3) {
+              newPhotos.push(result);
+            }
+          });
+          return newPhotos;
+        });
+      }
     });
   };
 
@@ -39,7 +59,6 @@ const Setup = ({ onComplete }) => {
       setError("");
 
       try {
-        // 保存偶像數據到 Firestore
         const idolDoc = await addDoc(collection(db, "idols"), {
           idolName,
           photos,
@@ -47,10 +66,7 @@ const Setup = ({ onComplete }) => {
           updatedAt: Timestamp.now(),
         });
 
-        // 保存偶像ID到 localStorage
         localStorage.setItem("current_idol_id", idolDoc.id);
-
-        // 完成設置
         onComplete({ idolName, photos, id: idolDoc.id });
       } catch (error) {
         console.error("保存偶像數據失敗:", error);
@@ -61,8 +77,16 @@ const Setup = ({ onComplete }) => {
     }
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
+  const triggerFileInput = (type) => {
+    if (type === "camera") {
+      cameraInputRef.current?.click();
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const removePhoto = (index) => {
+    setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
   };
 
   return (
@@ -76,13 +100,7 @@ const Setup = ({ onComplete }) => {
 
         <AnimatePresence mode="wait">
           {step === 1 ? (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="setup-form"
-            >
+            <div key="step1" className="setup-form">
               <div className="setup-title">請輸入偶像名稱</div>
               <input
                 type="text"
@@ -91,15 +109,9 @@ const Setup = ({ onComplete }) => {
                 placeholder="輸入偶像名稱"
                 className="setup-input"
               />
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="setup-form"
-            >
+            <div key="step2" className="setup-form">
               <div className="setup-title">上傳三張照片</div>
               <div className="photo-upload">
                 <input
@@ -110,6 +122,14 @@ const Setup = ({ onComplete }) => {
                   onChange={handlePhotoUpload}
                   className="file-input"
                 />
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handlePhotoUpload}
+                  className="file-input"
+                />
                 <div className="photo-preview">
                   {[0, 1, 2].map((index) => (
                     <div
@@ -117,19 +137,42 @@ const Setup = ({ onComplete }) => {
                       className={`preview-card ${
                         photos[index] ? "has-image" : ""
                       }`}
-                      onClick={triggerFileInput}
                     >
                       {photos[index] ? (
-                        <img src={photos[index]} alt={`Preview ${index + 1}`} />
+                        <div className="preview-card-content">
+                          <img
+                            src={photos[index]}
+                            alt={`Preview ${index + 1}`}
+                          />
+                          <button
+                            className="remove-photo"
+                            onClick={() => removePhoto(index)}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       ) : (
-                        <div className="placeholder">+</div>
+                        <div className="upload-options">
+                          <button
+                            className="upload-option"
+                            onClick={() => triggerFileInput("gallery")}
+                          >
+                            從相簿選擇
+                          </button>
+                          <button
+                            className="upload-option"
+                            onClick={() => triggerFileInput("camera")}
+                          >
+                            拍攝照片
+                          </button>
+                        </div>
                       )}
                     </div>
                   ))}
                 </div>
-                <div className="upload-hint">點擊任意卡片上傳照片</div>
+                <div className="upload-hint">點擊空白處上傳或拍攝照片</div>
               </div>
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
 

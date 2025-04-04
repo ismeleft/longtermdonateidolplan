@@ -1,7 +1,6 @@
 import React from "react";
 
 const Welcome = ({ onStart, userData, onJournalClick }) => {
-  console.log(userData);
   return (
     <div className="welcome-container">
       <div className="main-content">
@@ -12,7 +11,6 @@ const Welcome = ({ onStart, userData, onJournalClick }) => {
               <span className="idol-name">{userData.idolName}</span>
             )}
           </span>
-          {/* <br /> */}
           <span className="text-part">成果發表計畫</span>
         </div>
 
