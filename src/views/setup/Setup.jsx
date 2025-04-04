@@ -1,10 +1,14 @@
 import React, { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { db } from "../../firebase";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 
 const Setup = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [idolName, setIdolName] = useState("");
   const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const fileInputRef = useRef(null);
 
   const handlePhotoUpload = (e) => {
@@ -27,11 +31,33 @@ const Setup = ({ onComplete }) => {
     });
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1 && idolName) {
       setStep(2);
     } else if (step === 2 && photos.length === 3) {
-      onComplete({ idolName, photos });
+      setLoading(true);
+      setError("");
+
+      try {
+        // 保存偶像數據到 Firestore
+        const idolDoc = await addDoc(collection(db, "idols"), {
+          idolName,
+          photos,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
+        });
+
+        // 保存偶像ID到 localStorage
+        localStorage.setItem("current_idol_id", idolDoc.id);
+
+        // 完成設置
+        onComplete({ idolName, photos, id: idolDoc.id });
+      } catch (error) {
+        console.error("保存偶像數據失敗:", error);
+        setError("保存失敗，請稍後再試");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -107,15 +133,19 @@ const Setup = ({ onComplete }) => {
           )}
         </AnimatePresence>
 
+        {error && <div className="error-message">{error}</div>}
+
         <div className="action-button">
           <button
             className="setup-button"
             onClick={handleNext}
             disabled={
-              (step === 1 && !idolName) || (step === 2 && photos.length !== 3)
+              (step === 1 && !idolName) ||
+              (step === 2 && photos.length !== 3) ||
+              loading
             }
           >
-            {step === 1 ? "下一步" : "完成設定"}
+            {loading ? "保存中..." : step === 1 ? "下一步" : "完成設定"}
           </button>
         </div>
       </div>
