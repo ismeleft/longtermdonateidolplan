@@ -9,28 +9,51 @@ const Setup = ({ onComplete }) => {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [uploadError, setUploadError] = useState("");
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
 
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
+    setUploadError(""); // 清除之前的错误提示
+
+    // 检查文件数量
     if (files.length > 3) {
-      alert("最多只能上傳3張照片");
+      setUploadError("一次最多只能上傳3張照片");
+      return;
+    }
+
+    // 检查文件总大小
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > 15 * 1024 * 1024) {
+      // 15MB
+      setUploadError("照片總大小不能超過 15MB");
       return;
     }
 
     const filePromises = files.map((file) => {
       return new Promise((resolve) => {
-        // 检查文件大小
+        // 检查单个文件大小
         if (file.size > 5 * 1024 * 1024) {
           // 5MB
-          alert("照片大小不能超過 5MB");
+          setUploadError("單張照片不能超過 5MB");
+          resolve(null);
+          return;
+        }
+
+        // 检查文件类型
+        if (!file.type.startsWith("image/")) {
+          setUploadError("只能上傳圖片文件");
           resolve(null);
           return;
         }
 
         const reader = new FileReader();
         reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = () => {
+          setUploadError("照片讀取失敗，請重試");
+          resolve(null);
+        };
         reader.readAsDataURL(file);
       });
     });
@@ -40,7 +63,7 @@ const Setup = ({ onComplete }) => {
       if (validResults.length > 0) {
         setPhotos((prevPhotos) => {
           const newPhotos = [...prevPhotos];
-          validResults.forEach((result, index) => {
+          validResults.forEach((result) => {
             if (newPhotos.length < 3) {
               newPhotos.push(result);
             }
@@ -78,6 +101,7 @@ const Setup = ({ onComplete }) => {
   };
 
   const triggerFileInput = (type) => {
+    setUploadError(""); // 清除之前的错误提示
     if (type === "camera") {
       cameraInputRef.current?.click();
     } else {
@@ -87,6 +111,7 @@ const Setup = ({ onComplete }) => {
 
   const removePhoto = (index) => {
     setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
+    setUploadError(""); // 清除之前的错误提示
   };
 
   return (
@@ -130,6 +155,9 @@ const Setup = ({ onComplete }) => {
                   onChange={handlePhotoUpload}
                   className="file-input"
                 />
+                {uploadError && (
+                  <div className="upload-error">{uploadError}</div>
+                )}
                 <div className="photo-preview">
                   {[0, 1, 2].map((index) => (
                     <div
@@ -170,7 +198,13 @@ const Setup = ({ onComplete }) => {
                     </div>
                   ))}
                 </div>
-                <div className="upload-hint">點擊空白處上傳或拍攝照片</div>
+                <div className="upload-hint">
+                  {photos.length === 0
+                    ? "請上傳三張照片"
+                    : photos.length === 3
+                    ? "已選擇三張照片"
+                    : `還需要上傳 ${3 - photos.length} 張照片`}
+                </div>
               </div>
             </div>
           )}
