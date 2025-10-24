@@ -34,7 +34,7 @@ const Setup = ({ onComplete }) => {
       const data = await response.json();
       return data.secure_url;
     } catch (error) {
-      console.error("上傳到 Cloudinary 失敗:", error);
+      console.error("Failed to upload to Cloudinary:", error);
       throw error;
     }
   };
@@ -45,35 +45,35 @@ const Setup = ({ onComplete }) => {
     setLoading(true);
 
     try {
-      // 檢查文件數量和大小的邏輯保持不變
+      // Check file count and size
       if (files.length > 3) {
-        setUploadError("一次最多只能上傳3張照片");
+        setUploadError("Maximum 3 photos can be uploaded at once");
         return;
       }
 
       const totalSize = files.reduce((sum, file) => sum + file.size, 0);
       if (totalSize > 10 * 1024 * 1024) {
-        setUploadError("照片總大小不能超過 10MB");
+        setUploadError("Total file size cannot exceed 10MB");
         return;
       }
 
-      // 上傳到 Cloudinary
+      // Upload to Cloudinary
       const uploadPromises = files.map(async (file) => {
         if (file.size > 2 * 1024 * 1024) {
-          setUploadError("單張照片不能超過 2MB");
+          setUploadError("Single photo cannot exceed 2MB");
           return null;
         }
 
         if (!file.type.startsWith("image/")) {
-          setUploadError("只能上傳圖片文件");
+          setUploadError("Only image files can be uploaded");
           return null;
         }
 
         try {
           const cloudinaryUrl = await uploadToCloudinary(file);
           return cloudinaryUrl;
-        } catch (error) {
-          setUploadError("照片上傳失敗，請重試");
+        } catch {
+          setUploadError("Photo upload failed, please try again");
           return null;
         }
       });
@@ -92,8 +92,8 @@ const Setup = ({ onComplete }) => {
           return newPhotos;
         });
       }
-    } catch (error) {
-      setUploadError("上傳過程發生錯誤，請重試");
+    } catch {
+      setUploadError("Upload process failed, please try again");
     } finally {
       setLoading(false);
     }
@@ -102,14 +102,14 @@ const Setup = ({ onComplete }) => {
   const handleNext = async () => {
     if (step === 1 && idolName) {
       setStep(2);
-    } else if (step === 2 && photos.length === 3) {
+    } else if (step === 2) {
       setLoading(true);
       setError("");
 
       try {
         const idolDoc = await addDoc(collection(db, "idols"), {
           idolName,
-          photos, // 現在存儲的是 Cloudinary URL
+          photos, // Now storing Cloudinary URLs (can be empty array)
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
         });
@@ -117,8 +117,8 @@ const Setup = ({ onComplete }) => {
         localStorage.setItem("current_idol_id", idolDoc.id);
         onComplete({ idolName, photos, id: idolDoc.id });
       } catch (error) {
-        console.error("保存偶像數據失敗:", error);
-        setError("保存失敗，請稍後再試");
+        console.error("Failed to save idol data:", error);
+        setError("Save failed, please try again later");
       } finally {
         setLoading(false);
       }
@@ -126,7 +126,7 @@ const Setup = ({ onComplete }) => {
   };
 
   const triggerFileInput = (type) => {
-    setUploadError(""); // 清除之前的错误提示
+    setUploadError(""); // Clear previous error messages
     if (type === "camera") {
       cameraInputRef.current?.click();
     } else {
@@ -136,33 +136,48 @@ const Setup = ({ onComplete }) => {
 
   const removePhoto = (index) => {
     setPhotos((prevPhotos) => prevPhotos.filter((_, i) => i !== index));
-    setUploadError(""); // 清除之前的错误提示
+    setUploadError(""); // Clear previous error messages
   };
 
   return (
     <div className="welcome-container">
       <div className="main-content">
-        <div className="large-text">
-          <span className="text-part">長期資助海外藝術青年</span>
-          <br />
-          成果發表計畫
-        </div>
+        {/* Setup 頁面不需要顯示主標題，因為已經有分散字母設計 */}
 
         <AnimatePresence mode="wait">
           {step === 1 ? (
             <div key="step1" className="setup-form">
-              <div className="setup-title">請輸入偶像名稱</div>
+              <div className="setup-title">
+                <div className="artistic-title">
+                  <span className="letter letter-1">s</span>
+                  <span className="letter letter-2">e</span>
+                  <span className="letter letter-3">t</span>
+                  <span className="letter letter-4">u</span>
+                  <span className="letter letter-5">p</span>
+                </div>
+                <div className="subtitle">Enter your idol name</div>
+              </div>
               <input
                 type="text"
                 value={idolName}
                 onChange={(e) => setIdolName(e.target.value)}
-                placeholder="輸入偶像名稱"
+                placeholder="Enter your idol's name..."
                 className="setup-input"
               />
             </div>
           ) : (
             <div key="step2" className="setup-form">
-              <div className="setup-title">上傳三張照片</div>
+              <div className="setup-title">
+                <div className="artistic-title">
+                  <span className="letter letter-1">p</span>
+                  <span className="letter letter-2">h</span>
+                  <span className="letter letter-3">o</span>
+                  <span className="letter letter-4">t</span>
+                  <span className="letter letter-5">o</span>
+                  <span className="letter letter-6">s</span>
+                </div>
+                <div className="subtitle">Upload photos (optional)</div>
+              </div>
               <div className="photo-upload">
                 <input
                   ref={fileInputRef}
@@ -210,13 +225,13 @@ const Setup = ({ onComplete }) => {
                             className="upload-option"
                             onClick={() => triggerFileInput("gallery")}
                           >
-                            從相簿選擇
+                            Choose from Gallery
                           </button>
                           <button
                             className="upload-option"
                             onClick={() => triggerFileInput("camera")}
                           >
-                            拍攝照片
+                            Take Photo
                           </button>
                         </div>
                       )}
@@ -225,11 +240,25 @@ const Setup = ({ onComplete }) => {
                 </div>
                 <div className="upload-hint">
                   {photos.length === 0
-                    ? "請上傳三張照片"
+                    ? "上傳最多三張照片，或選擇跳過"
                     : photos.length === 3
                     ? "已選擇三張照片"
-                    : `還需要上傳 ${3 - photos.length} 張照片`}
+                    : `已選擇 ${photos.length} 張照片`}
                 </div>
+                
+                {photos.length === 0 && (
+                  <div className="skip-option">
+                    <button
+                      className="skip-button-inline"
+                      onClick={handleNext}
+                      disabled={loading}
+                      style={{ cursor: loading ? 'not-allowed' : 'pointer' }}
+                    >
+                      {loading ? '處理中...' : '跳過照片上傳'}
+                    </button>
+                    <div className="or-divider">或繼續上傳照片</div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -238,17 +267,25 @@ const Setup = ({ onComplete }) => {
         {error && <div className="error-message">{error}</div>}
 
         <div className="action-button">
-          <button
-            className="setup-button"
-            onClick={handleNext}
-            disabled={
-              (step === 1 && !idolName) ||
-              (step === 2 && photos.length !== 3) ||
-              loading
-            }
-          >
-            {loading ? "保存中..." : step === 1 ? "下一步" : "完成設定"}
-          </button>
+          {step === 2 ? (
+            photos.length > 0 ? (
+              <button
+                className="setup-button"
+                onClick={handleNext}
+                disabled={loading}
+              >
+                {loading ? "儲存中..." : "完成設定"}
+              </button>
+            ) : null
+          ) : (
+            <button
+              className="setup-button"
+              onClick={handleNext}
+              disabled={(step === 1 && !idolName) || loading}
+            >
+              {loading ? "載入中..." : "下一步"}
+            </button>
+          )}
         </div>
       </div>
     </div>

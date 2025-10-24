@@ -1,322 +1,585 @@
+/* Kazuki Noda inspired color palette */
+:root {
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #f1f3f4;
+  --text-primary: #475569;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --accent: #64748b;
+  --accent-light: #e2e8f0;
+}
+
 #root {
   width: 100%;
   margin: 0;
   padding: 0;
-  text-align: center;
+  text-align: left;
   overflow-x: hidden;
   position: relative;
   box-sizing: border-box;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans", "BIZ UDPGothic", Meiryo, sans-serif;
 }
 
-.welcome-page {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
+.welcome-container {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
   position: relative;
-  margin: 0 auto;
-  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--accent-light);
   box-sizing: border-box;
 }
 
-.welcome-page h1 {
-  font-size: 1.8rem;
-  line-height: 1.4;
-  margin-bottom: 1rem;
+.main-content {
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
   position: relative;
   z-index: 1;
-  color: #b8b9c3;
-  font-weight: normal;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.idol-name {
-  display: block;
-  font-size: 4rem;
-  background: linear-gradient(45deg, #8800ff, #38f9d7);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  margin: 1rem 0;
-  font-weight: bold;
-  letter-spacing: 0.2em;
-  text-shadow: 0 2px 15px rgba(67, 233, 123, 0.2);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* 照片卡片容器 */
-.photo-cards-container {
+  border-left: 1px solid var(--accent-light);
+  border-right: 1px solid var(--accent-light);
   display: flex;
-  gap: 2rem;
-  margin-top: 3rem;
-  perspective: 1000px;
-  width: 100%;
+  flex-direction: column;
+  padding: 2rem;
   box-sizing: border-box;
 }
 
-.photo-card {
-  width: 300px;
-  height: 400px;
-  border-radius: 20px;
-  overflow: hidden;
+.large-text {
   position: relative;
-  transform-style: preserve-3d;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  transition: all 0.5s ease;
+  padding: 1rem 0;
+  border-top: 1px solid var(--accent-light);
+  flex: 0 0 auto;
+  height: 350px;
+  margin-top: -20px;
 }
 
-.photo-card img {
+/* 首頁藝術字母排列 */
+.artistic-title-main {
+  position: relative;
+  height: 150px;
+  margin-bottom: 2rem;
+}
+
+.artistic-title-sub {
+  position: relative;
+  height: 150px;
+}
+
+.main-letter {
+  position: absolute;
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 200;
+  color: var(--text-secondary);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0;
+  transition: all 0.3s ease;
+}
+
+.sub-letter {
+  position: absolute;
+  font-size: clamp(2rem, 6vw, 5rem);
+  font-weight: 300;
+  color: var(--text-secondary);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0;
+  transition: all 0.3s ease;
+}
+
+.main-letter:hover,
+.sub-letter:hover {
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+/* 主標題 "Long-term" 字母位置 */
+.main-letter-1 {
+  top: 2rem;
+  left: 0%;
+  transform: rotate(-3deg);
+}
+.main-letter-2 {
+  top: 0rem;
+  left: 8%;
+  transform: rotate(2deg);
+}
+.main-letter-3 {
+  top: 3rem;
+  left: 15%;
+  transform: rotate(-4deg);
+}
+.main-letter-4 {
+  top: 1rem;
+  left: 22%;
+  transform: rotate(3deg);
+}
+.main-letter-5 {
+  top: 2.5rem;
+  left: 30%;
+  transform: rotate(-1deg);
+}
+.main-letter-6 {
+  top: 0.5rem;
+  left: 35%;
+  transform: rotate(4deg);
+}
+.main-letter-7 {
+  top: 2rem;
+  left: 42%;
+  transform: rotate(-2deg);
+}
+.main-letter-8 {
+  top: 0rem;
+  left: 48%;
+  transform: rotate(3deg);
+}
+.main-letter-9 {
+  top: 3rem;
+  left: 55%;
+  transform: rotate(-5deg);
+}
+
+/* 副標題 "Support Journal" 字母位置 */
+.sub-letter-1 {
+  top: 1rem;
+  left: 5%;
+  transform: rotate(3deg);
+}
+.sub-letter-2 {
+  top: 2.5rem;
+  left: 12%;
+  transform: rotate(-2deg);
+}
+.sub-letter-3 {
+  top: 0rem;
+  left: 18%;
+  transform: rotate(4deg);
+}
+.sub-letter-4 {
+  top: 2rem;
+  left: 24%;
+  transform: rotate(-3deg);
+}
+.sub-letter-5 {
+  top: 0.5rem;
+  left: 30%;
+  transform: rotate(2deg);
+}
+.sub-letter-6 {
+  top: 3rem;
+  left: 36%;
+  transform: rotate(-4deg);
+}
+.sub-letter-7 {
+  top: 1rem;
+  left: 42%;
+  transform: rotate(3deg);
+}
+.sub-letter-8 {
+  top: 2.5rem;
+  left: 52%;
+  transform: rotate(-2deg);
+}
+.sub-letter-9 {
+  top: 0rem;
+  left: 58%;
+  transform: rotate(4deg);
+}
+.sub-letter-10 {
+  top: 2rem;
+  left: 64%;
+  transform: rotate(-3deg);
+}
+.sub-letter-11 {
+  top: 0.5rem;
+  left: 70%;
+  transform: rotate(2deg);
+}
+.sub-letter-12 {
+  top: 3rem;
+  left: 76%;
+  transform: rotate(-4deg);
+}
+.sub-letter-13 {
+  top: 1rem;
+  left: 82%;
+  transform: rotate(3deg);
+}
+.sub-letter-14 {
+  top: 2.5rem;
+  left: 88%;
+  transform: rotate(-2deg);
+}
+
+.idol-name-main {
+  position: absolute;
+  bottom: -4rem;
+  right: 0%;
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.1em;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  transform: rotate(-2deg);
+  z-index: 100;
+}
+
+.photo-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  perspective: 1000px;
+  height: 300px;
+  border-top: 1px solid var(--accent-light);
+  padding: 2rem 0;
+  flex: 1;
+  margin-bottom: 1rem;
+  margin-top: 8rem;
+}
+
+.card {
+  width: 200px;
+  height: 280px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: absolute;
+  background: var(--bg-secondary);
+  box-shadow: 0 4px 20px rgba(71, 85, 105, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid var(--accent-light);
+}
+
+.card img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 20px;
-  transition: all 0.5s ease;
-}
-
-.photo-card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.3) 100%
-  );
-  border-radius: 20px;
-}
-
-.photo-card:hover {
-  transform: translateY(-20px) rotateX(10deg);
-}
-
-.photo-card:hover img {
-  transform: scale(1.05);
-}
-
-/* 装饰元素容器 */
-.decorative-elements {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-/* 渐变圆环 */
-.gradient-ring {
-  position: absolute;
-  top: 10vh;
-  left: 5vw;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: 25px solid transparent;
-  background: linear-gradient(45deg, #43e97b, #38f9d7) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: destination-out;
-  mask-composite: exclude;
-  animation: float 6s ease-in-out infinite;
-  opacity: 0.6;
-}
-
-/* 模糊光效 */
-.circle-1 {
-  position: absolute;
-  top: 20vh;
-  right: 10vw;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(
-    circle at center,
-    rgba(67, 233, 123, 0.2),
-    transparent 70%
-  );
-  border-radius: 50%;
-  filter: blur(50px);
-  animation: pulse 8s ease-in-out infinite;
-}
-
-.circle-2 {
-  position: absolute;
-  bottom: 10vh;
-  left: 15vw;
-  width: 250px;
-  height: 250px;
-  background: radial-gradient(
-    circle at center,
-    rgba(56, 249, 215, 0.15),
-    transparent 70%
-  );
-  border-radius: 50%;
-  filter: blur(40px);
-  animation: float 7s ease-in-out infinite reverse;
-}
-
-.journal-button {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 1rem 2rem;
-  font-size: 1rem;
-  color: #fff;
-  border-radius: 30px;
-  cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  margin-top: 2rem;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  width: 100%;
-  max-width: 300px;
-  box-sizing: border-box;
 }
 
+.card.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-light);
+}
+
+.card-placeholder {
+  font-size: 3rem;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+.card:hover {
+  box-shadow: 0 8px 30px rgba(71, 85, 105, 0.15);
+}
+
+.action-button {
+  display: flex;
+  justify-content: center;
+  padding: 8rem 0;
+  border-bottom: 1px solid var(--accent-light);
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 10;
+  min-height: 140px;
+}
+
+.start-button,
+.journal-button {
+  background: var(--accent);
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 0.875rem;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.start-button:hover,
 .journal-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--text-primary);
   transform: translateY(-2px);
 }
 
-/* 动画效果 */
-@keyframes float {
-  0% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(5deg);
-  }
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  border-top: 1px solid var(--accent-light);
+  position: relative;
+  flex: 0 0 auto;
 }
 
-@keyframes pulse {
-  0% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 0.5;
-    transform: scale(1);
-  }
+.footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 2rem;
+  right: 2rem;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-light),
+    transparent
+  );
 }
 
-/* 响应式设计 */
-@media (max-width: 1024px) {
-  .photo-cards-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .photo-card {
-    width: 280px;
-    height: 380px;
-  }
-
-  .welcome-page h1 {
-    font-size: 1.5rem;
-  }
-
-  .idol-name {
-    font-size: 3rem;
-  }
-
-  .journal-button {
-    max-width: 250px;
-  }
+.morse-code {
+  display: flex;
+  gap: 0.5rem;
+  font-family: "Courier New", monospace;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
 }
 
+.morse-dot,
+.morse-dash {
+  opacity: 0.7;
+}
+
+.author {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 響應式設計 */
 @media (max-width: 768px) {
-  .welcome-page {
-    padding: 1.5rem;
+  .welcome-container {
+    height: 100vh;
+    height: 100dvh; /* 動態視窗高度，手機瀏覽器友好 */
   }
 
-  .welcome-page h1 {
-    font-size: 1.3rem;
+  .main-content {
+    padding: 1.5rem 1rem;
+    border-left: none;
+    border-right: none;
   }
 
-  .idol-name {
-    font-size: 2.5rem;
+  .large-text {
+    height: 250px;
+    padding: 0.5rem 0;
   }
 
-  .photo-card {
-    width: 240px;
-    height: 320px;
+  .artistic-title-main {
+    height: 120px;
   }
 
-  .journal-button {
-    max-width: 220px;
-    padding: 0.8rem 1.5rem;
-    font-size: 0.9rem;
+  .artistic-title-sub {
+    height: 120px;
+  }
+
+  .main-letter {
+    font-size: clamp(2rem, 6vw, 4rem);
+  }
+
+  .sub-letter {
+    font-size: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  /* 手機版字母位置調整 */
+  .main-letter-1 {
+    top: 1rem;
+    left: 2%;
+  }
+  .main-letter-2 {
+    top: 0rem;
+    left: 12%;
+  }
+  .main-letter-3 {
+    top: 2rem;
+    left: 20%;
+  }
+  .main-letter-4 {
+    top: 0.5rem;
+    left: 28%;
+  }
+  .main-letter-5 {
+    top: 1.5rem;
+    left: 36%;
+  }
+  .main-letter-6 {
+    top: 0rem;
+    left: 42%;
+  }
+  .main-letter-7 {
+    top: 2rem;
+    left: 50%;
+  }
+  .main-letter-8 {
+    top: 0.5rem;
+    left: 58%;
+  }
+  .main-letter-9 {
+    top: 1.5rem;
+    left: 68%;
+  }
+
+  .sub-letter-1 {
+    top: 0.5rem;
+    left: 2%;
+  }
+  .sub-letter-2 {
+    top: 2rem;
+    left: 8%;
+  }
+  .sub-letter-3 {
+    top: 0rem;
+    left: 14%;
+  }
+  .sub-letter-4 {
+    top: 1.5rem;
+    left: 20%;
+  }
+  .sub-letter-5 {
+    top: 0.5rem;
+    left: 26%;
+  }
+  .sub-letter-6 {
+    top: 2rem;
+    left: 32%;
+  }
+  .sub-letter-7 {
+    top: 0rem;
+    left: 38%;
+  }
+  .sub-letter-8 {
+    top: 1.5rem;
+    left: 46%;
+  }
+  .sub-letter-9 {
+    top: 0rem;
+    left: 52%;
+  }
+  .sub-letter-10 {
+    top: 2rem;
+    left: 58%;
+  }
+  .sub-letter-11 {
+    top: 0.5rem;
+    left: 64%;
+  }
+  .sub-letter-12 {
+    top: 1.5rem;
+    left: 70%;
+  }
+  .sub-letter-13 {
+    top: 0rem;
+    left: 76%;
+  }
+  .sub-letter-14 {
+    top: 2rem;
+    left: 84%;
+  }
+
+  .idol-name-main {
+    font-size: clamp(1rem, 3vw, 2rem);
+    right: 0%;
+    bottom: -1.5rem;
+  }
+
+  .photo-cards {
+    height: 200px;
+    padding: 1rem 0;
+    margin-top: 4rem;
+  }
+
+  .card {
+    width: 140px;
+    height: 180px;
+  }
+
+  .action-button {
+    padding: 3rem 0;
+    min-height: 120px;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 0.5rem 0;
   }
 }
 
 @media (max-width: 480px) {
-  .welcome-page {
-    padding: 1rem;
+  .main-content {
+    padding: 1rem 0.5rem;
   }
 
-  .welcome-page h1 {
-    font-size: 1.1rem;
+  .large-text .text-part:first-child,
+  .large-text .text-part:last-child {
+    transform: translateX(0.5rem);
   }
 
   .idol-name {
-    font-size: 2rem;
+    transform: translateX(0.5rem);
   }
 
-  .photo-card {
-    width: 200px;
-    height: 280px;
-  }
-
-  .journal-button {
-    max-width: 200px;
-    padding: 0.7rem 1.2rem;
-    font-size: 0.8rem;
+  .card {
+    width: 120px;
+    height: 160px;
   }
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* 全局返回首頁按鈕 */
+.home-button {
+  position: fixed;
+  top: 2rem;
+  left: 2rem;
+  background: transparent;
+  border: 1px solid var(--accent-light);
+  color: var(--text-secondary);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  backdrop-filter: blur(10px);
+  background-color: rgba(248, 249, 250, 0.8);
+  z-index: 1000;
+  border-radius: 0;
 }
 
-.read-the-docs {
-  color: #888;
+.home-button:hover {
+  background-color: var(--accent-light);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  border-color: var(--accent);
+}
+
+/* Home 按鈕手機版樣式 */
+@media (max-width: 768px) {
+  .home-button {
+    top: 1rem;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-button {
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.65rem;
+  }
 }

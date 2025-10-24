@@ -41,13 +41,36 @@ const Welcome = ({ onStart, userData, onJournalClick }) => {
     <div className="welcome-container">
       <div className="main-content">
         <div className="large-text">
-          <span className="text-part">
-            長期資助海外藝術青年
-            {userData?.idolName && (
-              <span className="idol-name">{userData.idolName}</span>
-            )}
-          </span>
-          <span className="text-part">成果發表計畫</span>
+          <div className="artistic-title-main">
+            <span className="main-letter main-letter-1">L</span>
+            <span className="main-letter main-letter-2">o</span>
+            <span className="main-letter main-letter-3">n</span>
+            <span className="main-letter main-letter-4">g</span>
+            <span className="main-letter main-letter-5">-</span>
+            <span className="main-letter main-letter-6">t</span>
+            <span className="main-letter main-letter-7">e</span>
+            <span className="main-letter main-letter-8">r</span>
+            <span className="main-letter main-letter-9">m</span>
+          </div>
+          <div className="artistic-title-sub">
+            <span className="sub-letter sub-letter-1">S</span>
+            <span className="sub-letter sub-letter-2">u</span>
+            <span className="sub-letter sub-letter-3">p</span>
+            <span className="sub-letter sub-letter-4">p</span>
+            <span className="sub-letter sub-letter-5">o</span>
+            <span className="sub-letter sub-letter-6">r</span>
+            <span className="sub-letter sub-letter-7">t</span>
+            <span className="sub-letter sub-letter-8">J</span>
+            <span className="sub-letter sub-letter-9">o</span>
+            <span className="sub-letter sub-letter-10">u</span>
+            <span className="sub-letter sub-letter-11">r</span>
+            <span className="sub-letter sub-letter-12">n</span>
+            <span className="sub-letter sub-letter-13">a</span>
+            <span className="sub-letter sub-letter-14">l</span>
+          </div>
+          {userData?.idolName && (
+            <div className="idol-name-main">{userData.idolName}</div>
+          )}
         </div>
 
         <div className="photo-cards">
@@ -60,12 +83,18 @@ const Welcome = ({ onStart, userData, onJournalClick }) => {
                   transform: getCardTransform(index),
                   zIndex: index,
                 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = `${getCardTransform(index)} translateY(-10px)`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = getCardTransform(index);
+                }}
               >
                 <img src={photo} alt={`照片 ${index + 1}`} />
               </div>
             ))
           ) : (
-            <div className="empty-cards">
+            <>
               {[0, 1, 2].map((index) => (
                 <div
                   key={index}
@@ -78,23 +107,22 @@ const Welcome = ({ onStart, userData, onJournalClick }) => {
                   <div className="card-placeholder">?</div>
                 </div>
               ))}
-            </div>
+            </>
           )}
         </div>
 
         <div className="action-button">
           {!userData?.idolName ? (
             <button className="start-button" onClick={onStart}>
-              設定偶像資料
+              Setup Profile
             </button>
           ) : (
-            userData.photos?.length >= 3 && (
-              <button className="journal-button" onClick={onJournalClick}>
-                進入追星日誌
-              </button>
-            )
+            <button className="journal-button" onClick={onJournalClick}>
+              Enter Journal
+            </button>
           )}
         </div>
+        
         <div className="footer">
           <div className="morse-code">
             {[

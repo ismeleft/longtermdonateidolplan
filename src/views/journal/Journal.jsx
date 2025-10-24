@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { db } from "../../firebase";
+import PieChart from "../../components/PieChart";
 import {
   collection,
   addDoc,
@@ -13,7 +14,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 
-const Journal = ({ idolName, onBackToWelcome }) => {
+const Journal = ({ idolName }) => {
   const [expenses, setExpenses] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [startDate, setStartDate] = useState(() => {
@@ -44,14 +45,6 @@ const Journal = ({ idolName, onBackToWelcome }) => {
     description: "",
   });
   const [errors, setErrors] = useState({});
-
-  // 從 localStorage 加載偶像ID
-  useEffect(() => {
-    const savedIdolId = localStorage.getItem("current_idol_id");
-    if (savedIdolId) {
-      // 這裡可以加載偶像信息
-    }
-  }, []);
 
   // 保存設置到 localStorage
   useEffect(() => {
@@ -108,7 +101,7 @@ const Journal = ({ idolName, onBackToWelcome }) => {
     const now = new Date();
     const diffTime = Math.abs(now - startDate);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return `${diffDays} 天`;
+    return diffDays;
   };
 
   // 計算總支出
@@ -135,8 +128,14 @@ const Journal = ({ idolName, onBackToWelcome }) => {
       .reduce((total, expense) => total + Number(expense.amount), 0);
   };
 
+  // 計算年度剩餘預算
+  const calculateRemainingBudget = () => {
+    const yearlyExpenses = calculateYearlyExpenses();
+    return yearlyBudget - yearlyExpenses;
+  };
+
   // 計算各類別支出
-  const _calculateCategoryExpenses = () => {
+  const calculateCategoryExpenses = () => {
     return expenses.reduce((acc, expense) => {
       acc[expense.category] =
         (acc[expense.category] || 0) + Number(expense.amount);
@@ -144,10 +143,13 @@ const Journal = ({ idolName, onBackToWelcome }) => {
     }, {});
   };
 
-  // 計算年度剩餘預算
-  const calculateRemainingBudget = () => {
-    const yearlyExpenses = calculateYearlyExpenses();
-    return yearlyBudget - yearlyExpenses;
+  // 為圓餅圖準備數據
+  const getPieChartData = () => {
+    const categoryExpenses = calculateCategoryExpenses();
+    return Object.entries(categoryExpenses).map(([category, amount]) => ({
+      label: category,
+      value: amount
+    }));
   };
 
   // 計算倒數天數
@@ -253,7 +255,6 @@ const Journal = ({ idolName, onBackToWelcome }) => {
     try {
       const date = timestamp.toDate();
       return date.toLocaleDateString("zh-TW", {
-        year: "numeric",
         month: "2-digit",
         day: "2-digit",
       });
@@ -285,44 +286,41 @@ const Journal = ({ idolName, onBackToWelcome }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="journal-page"
-    >
-      <div className="journal-header">
-        <button className="back-button" onClick={onBackToWelcome}>
-          返回主頁
-        </button>
-        <h2>《我的{idolName}在海外長大中！》 </h2>
+    <div className="accounting-app">
+      {/* 頁面標題 */}
+      <header className="app-header">
+        <h1 className="app-title">{idolName} 追星記帳</h1>
+        <div className="header-stats">
+          <span className="days-count">{calculateDuration()} 天</span>
+        </div>
+      </header>
+
+      {/* 主要統計卡片 */}
+      <div className="stats-grid">
+        <div className="stat-item">
+          <div className="stat-label">總支出</div>
+          <div className="stat-value">${calculateTotalExpenses()}</div>
+        </div>
+        <div className="stat-item">
+          <div className="stat-label">本年度支出</div>
+          <div className="stat-value">${calculateYearlyExpenses()}</div>
+        </div>
+        <div className="stat-item">
+          <div className="stat-label">年度預算</div>
+          <div className="stat-value">${yearlyBudget}</div>
+        </div>
+        <div className="stat-item">
+          <div className="stat-label">剩餘預算</div>
+          <div className="stat-value">${calculateRemainingBudget()}</div>
+        </div>
       </div>
 
-      {/* 統計概覽 */}
-      <div className="stats-overview">
-        <div className="stat-card">
-          <h3>相遇的日子</h3>
-          <p>{calculateDuration()}</p>
-          <div className="date-setter">
-            <label>開始日期：</label>
-            <input
-              type="date"
-              value={startDate.toISOString().split("T")[0]}
-              onChange={(e) => setStartDate(new Date(e.target.value))}
-            />
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <h3>支出統計</h3>
-          <p>總支出：${calculateTotalExpenses()}</p>
-          <p>本年度支出：${calculateYearlyExpenses()}</p>
-        </div>
-
-        <div className="stat-card">
+      {/* 主要內容區 */}
+      <div className="main-content-grid">
+        <div className="budget-section">
           <h3>預算管理</h3>
-          <div className="budget-setting">
-            <div>
+          <div className="budget-controls">
+            <div className="input-group">
               <label>月定期存款：</label>
               <input
                 type="number"
@@ -332,249 +330,250 @@ const Journal = ({ idolName, onBackToWelcome }) => {
                   setMonthlyBudget(value);
                   setYearlyBudget(value * 12);
                 }}
+                placeholder="0"
               />
             </div>
-            <div>
-              <label>年度預算：</label>
-              <p>${yearlyBudget}</p>
-            </div>
-            <div>
-              <label>剩餘預算：</label>
-              <p>${calculateRemainingBudget()}</p>
+            <div className="input-group">
+              <label>開始日期：</label>
+              <input
+                type="date"
+                value={startDate.toISOString().split("T")[0]}
+                onChange={(e) => setStartDate(new Date(e.target.value))}
+              />
             </div>
           </div>
         </div>
 
-        <div className="stat-card">
+        {/* 倒數事件 */}
+        <div className="countdown-section">
           <h3>倒數日</h3>
-          <div className="countdown-events">
-            {countdownEvents.map((event) => (
-              <div key={event.id} className="countdown-event">
-                <div className="event-info">
-                  <span className="event-title">{event.title}</span>
-                  <span className="event-date">
-                    {new Date(event.date).toLocaleDateString()}
+          <div className="countdown-list">
+            {countdownEvents.length > 0 ? (
+              countdownEvents.map((event) => (
+                <div key={event.id} className="countdown-item">
+                  <span className="event-name">{event.title}</span>
+                  <span className="event-countdown">
+                    還有 {calculateDaysLeft(event.date)} 天
                   </span>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDeleteEvent(event.id)}
+                  >
+                    刪除
+                  </button>
                 </div>
-                <div className="days-left">
-                  還有 {calculateDaysLeft(event.date)} 天
-                </div>
-                <button
-                  className="delete-button"
-                  onClick={() => handleDeleteEvent(event.id)}
-                >
-                  刪除
-                </button>
-              </div>
-            ))}
-            <button
-              className="add-event-button"
-              onClick={() => setShowAddEventForm(true)}
-            >
-              添加倒數日
-            </button>
+              ))
+            ) : (
+              <div className="empty-state">尚無倒數事件</div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* 添加支出按鈕 */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => {
-          setShowAddForm(true);
-          setEditingExpense(null);
-          setNewExpense({ amount: "", category: "", description: "" });
-        }}
-        className="add-expense-button"
-      >
-        贊助他 / 她
-      </motion.button>
+      {/* 支出分析圖表 */}
+      <div className="chart-section">
+        <h3>支出分析</h3>
+        <PieChart data={getPieChartData()} size={200} />
+      </div>
 
-      {/* 添加/編輯支出表單 */}
+      {/* 快速操作按鈕 */}
+      <div className="action-buttons">
+        <button 
+          className="btn-primary"
+          onClick={() => {
+            setShowAddForm(true);
+            setEditingExpense(null);
+            setNewExpense({ amount: "", category: "", description: "" });
+          }}
+        >
+          記一筆
+        </button>
+        <button 
+          className="btn-secondary"
+          onClick={() => setShowAddEventForm(true)}
+        >
+          添加倒數日
+        </button>
+      </div>
+
+      {/* 新增支出表單 */}
       <AnimatePresence>
         {showAddForm && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="add-expense-form"
+            className="modal-overlay"
           >
-            <form onSubmit={handleAddExpense}>
-              <div>
-                <input
-                  type="number"
-                  value={newExpense.amount}
-                  onChange={(e) =>
-                    setNewExpense({ ...newExpense, amount: e.target.value })
-                  }
-                  placeholder="金額"
-                  className={errors.amount ? "error" : ""}
-                />
-                {errors.amount && (
-                  <span className="error-message">{errors.amount}</span>
-                )}
-              </div>
-              <div>
-                <select
-                  value={newExpense.category}
-                  onChange={(e) =>
-                    setNewExpense({ ...newExpense, category: e.target.value })
-                  }
-                  className={errors.category ? "error" : ""}
-                >
-                  <option value="">選擇分類</option>
-                  <option value="周邊">周邊</option>
-                  <option value="演唱會">演唱會</option>
-                  <option value="應援">應援</option>
-                  <option value="其他">其他</option>
-                </select>
-                {errors.category && (
-                  <span className="error-message">{errors.category}</span>
-                )}
-              </div>
-              <div>
-                <input
-                  type="text"
-                  value={newExpense.description}
-                  onChange={(e) =>
-                    setNewExpense({
-                      ...newExpense,
-                      description: e.target.value,
-                    })
-                  }
-                  placeholder="描述"
-                  className={errors.description ? "error" : ""}
-                />
-                {errors.description && (
-                  <span className="error-message">{errors.description}</span>
-                )}
-              </div>
-              <div className="form-buttons">
-                <button type="submit">
-                  {editingExpense ? "更新" : "保存"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddForm(false);
-                    setEditingExpense(null);
-                    setErrors({});
-                  }}
-                >
-                  取消
-                </button>
-              </div>
-            </form>
+            <div className="modal-content">
+              <h3>{editingExpense ? "編輯支出" : "新增支出"}</h3>
+              <form onSubmit={handleAddExpense} className="expense-form">
+                <div className="form-row">
+                  <input
+                    type="number"
+                    value={newExpense.amount}
+                    onChange={(e) =>
+                      setNewExpense({ ...newExpense, amount: e.target.value })
+                    }
+                    placeholder="金額"
+                    className={errors.amount ? "error" : ""}
+                  />
+                  {errors.amount && (
+                    <span className="error-text">{errors.amount}</span>
+                  )}
+                </div>
+                <div className="form-row">
+                  <select
+                    value={newExpense.category}
+                    onChange={(e) =>
+                      setNewExpense({ ...newExpense, category: e.target.value })
+                    }
+                    className={errors.category ? "error" : ""}
+                  >
+                    <option value="">選擇分類</option>
+                    <option value="周邊">周邊</option>
+                    <option value="演唱會">演唱會</option>
+                    <option value="應援">應援</option>
+                    <option value="其他">其他</option>
+                  </select>
+                  {errors.category && (
+                    <span className="error-text">{errors.category}</span>
+                  )}
+                </div>
+                <div className="form-row">
+                  <input
+                    type="text"
+                    value={newExpense.description}
+                    onChange={(e) =>
+                      setNewExpense({
+                        ...newExpense,
+                        description: e.target.value,
+                      })
+                    }
+                    placeholder="描述"
+                    className={errors.description ? "error" : ""}
+                  />
+                  {errors.description && (
+                    <span className="error-text">{errors.description}</span>
+                  )}
+                </div>
+                <div className="form-buttons">
+                  <button type="submit" className="btn-primary">
+                    {editingExpense ? "更新" : "保存"}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => {
+                      setShowAddForm(false);
+                      setEditingExpense(null);
+                      setErrors({});
+                    }}
+                  >
+                    取消
+                  </button>
+                </div>
+              </form>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 添加倒數日表單 */}
+      {/* 新增倒數日表單 */}
       <AnimatePresence>
         {showAddEventForm && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="add-event-form"
+            className="modal-overlay"
           >
-            <form onSubmit={handleAddEvent}>
-              <div>
-                <input
-                  type="text"
-                  value={newEvent.title}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, title: e.target.value })
-                  }
-                  placeholder="事件名稱（如：演唱會、回歸）"
-                />
-              </div>
-              <div>
-                <input
-                  type="date"
-                  value={newEvent.date}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, date: e.target.value })
-                  }
-                />
-              </div>
-              <div className="form-buttons">
-                <button type="submit">保存</button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddEventForm(false);
-                    setNewEvent({ title: "", date: "" });
-                  }}
-                >
-                  取消
-                </button>
-              </div>
-            </form>
+            <div className="modal-content">
+              <h3>添加倒數日</h3>
+              <form onSubmit={handleAddEvent} className="event-form">
+                <div className="form-row">
+                  <input
+                    type="text"
+                    value={newEvent.title}
+                    onChange={(e) =>
+                      setNewEvent({ ...newEvent, title: e.target.value })
+                    }
+                    placeholder="事件名稱（如：演唱會、回歸）"
+                  />
+                </div>
+                <div className="form-row">
+                  <input
+                    type="date"
+                    value={newEvent.date}
+                    onChange={(e) =>
+                      setNewEvent({ ...newEvent, date: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-buttons">
+                  <button type="submit" className="btn-primary">保存</button>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => {
+                      setShowAddEventForm(false);
+                      setNewEvent({ title: "", date: "" });
+                    }}
+                  >
+                    取消
+                  </button>
+                </div>
+              </form>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 支出列表 */}
-      <div className="expenses-list">
+      {/* 支出記錄列表 */}
+      <div className="expenses-section">
         <h3>支出記錄</h3>
-        <div className="expenses-table-container">
-          <table className="expenses-table">
-            <thead>
-              <tr>
-                <th>日期</th>
-                <th>分類</th>
-                <th>金額</th>
-                <th>描述</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <AnimatePresence>
-                {expenses.map((expense) => (
-                  <motion.tr
-                    key={expense.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="expense-row"
+        <div className="expenses-list">
+          {expenses.length === 0 ? (
+            <div className="empty-state">尚無支出記錄</div>
+          ) : (
+            expenses.map((expense) => (
+              <motion.div
+                key={expense.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="expense-item"
+              >
+                <div className="expense-main">
+                  <div className="expense-info">
+                    <span className="expense-amount">${expense.amount}</span>
+                    <span className="expense-category">{expense.category}</span>
+                  </div>
+                  <div className="expense-details">
+                    <span className="expense-description">{expense.description}</span>
+                    <span className="expense-date">{formatDate(expense.date)}</span>
+                  </div>
+                </div>
+                <div className="expense-actions">
+                  <button
+                    className="btn-edit"
+                    onClick={() => handleEditExpense(expense)}
                   >
-                    <td>{formatDate(expense.date)}</td>
-                    <td>{expense.category}</td>
-                    <td className="amount">${expense.amount}</td>
-                    <td>{expense.description}</td>
-                    <td className="expense-actions">
-                      <button
-                        type="button"
-                        className="edit-button"
-                        onClick={() => handleEditExpense(expense)}
-                      >
-                        編輯
-                      </button>
-                      <button
-                        type="button"
-                        className="delete-button"
-                        onClick={() => handleDeleteExpense(expense.id)}
-                      >
-                        刪除
-                      </button>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-              {expenses.length === 0 && (
-                <tr>
-                  <td colSpan="5" className="no-expenses">
-                    尚無支出記錄
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                    編輯
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDeleteExpense(expense.id)}
+                  >
+                    刪除
+                  </button>
+                </div>
+              </motion.div>
+            ))
+          )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

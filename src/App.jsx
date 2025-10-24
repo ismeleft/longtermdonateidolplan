@@ -64,6 +64,17 @@ const App = () => {
 
   return (
     <div className="app">
+      {/* 全局返回首頁按鈕 - 只在非首頁時顯示 */}
+      {page !== "welcome" && (
+        <button 
+          className="home-button" 
+          onClick={handleBackToWelcome}
+          aria-label="Back to Home"
+        >
+          Home
+        </button>
+      )}
+      
       <AnimatePresence mode="wait">
         {page === "welcome" && (
           <Welcome
@@ -76,7 +87,6 @@ const App = () => {
         {page === "journal" && (
           <Journal
             idolName={userData?.idolName}
-            onBackToWelcome={handleBackToWelcome}
           />
         )}
       </AnimatePresence>

@@ -23,3 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .qodo
+
+.cursor
+.claude
+Claude.md
+gemini.md
