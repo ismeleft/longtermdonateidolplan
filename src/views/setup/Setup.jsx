@@ -120,14 +120,12 @@ const Setup = ({ onComplete, user }) => {
           updatedAt: Timestamp.now(),
         });
 
-        // 2. 保存用戶設定（包含相遇日期）
+        // 2. 保存用戶設定（包含相遇日期）- 使用 merge 保留現有資料
         const userSettings = {
           startDate: new Date(meetingDate).toISOString(),
-          monthlyBudgets: {},
-          countdownEvents: [],
           updatedAt: Timestamp.now()
         };
-        await setDoc(doc(db, "userSettings", user.uid), userSettings);
+        await setDoc(doc(db, "userSettings", user.uid), userSettings, { merge: true });
 
         localStorage.setItem("current_idol_id", idolDoc.id);
         onComplete({ idolName, photos, id: idolDoc.id, userId: user.uid });
