@@ -31,29 +31,14 @@ const Welcome = ({
     };
   }, []);
 
-  // 從 Firebase 載入用戶設定
+  // 從當前 idol 資料載入 startDate
   useEffect(() => {
-    if (user) {
-      loadUserStartDate();
-    }
-  }, [user]);
-
-  const loadUserStartDate = async () => {
-    try {
-      const settingsDoc = await getDoc(doc(db, "userSettings", user.uid));
-      if (settingsDoc.exists()) {
-        const settings = settingsDoc.data();
-        setStartDate(
-          settings.startDate ? new Date(settings.startDate) : new Date()
-        );
-      } else {
-        setStartDate(new Date());
-      }
-    } catch (error) {
-      console.error("載入用戶設定失敗:", error);
+    if (userData?.startDate) {
+      setStartDate(new Date(userData.startDate));
+    } else {
       setStartDate(new Date());
     }
-  };
+  }, [userData]);
 
   // 根据屏幕宽度计算卡片位置
   const getCardTransform = (index) => {
@@ -139,25 +124,25 @@ const Welcome = ({
       const totalNewPhotos = currentPhotos.length + files.length;
 
       if (totalNewPhotos > 3) {
-        setUploadError(`最多只能有3張照片，目前已有${currentPhotos.length}張`);
+        setUploadError(`Maximum 3 photos allowed, currently ${currentPhotos.length} uploaded`);
         return;
       }
 
       const totalSize = files.reduce((sum, file) => sum + file.size, 0);
       if (totalSize > 10 * 1024 * 1024) {
-        setUploadError("總文件大小不能超過10MB");
+        setUploadError("Total file size cannot exceed 10MB");
         return;
       }
 
       // 上傳到 Cloudinary
       const uploadPromises = files.map(async (file) => {
         if (file.size > 2 * 1024 * 1024) {
-          setUploadError("單張照片不能超過2MB");
+          setUploadError("Each photo cannot exceed 2MB");
           return null;
         }
 
         if (!file.type.startsWith("image/")) {
-          setUploadError("只能上傳圖片文件");
+          setUploadError("Only image files are allowed");
           return null;
         }
 
@@ -165,7 +150,7 @@ const Welcome = ({
           const cloudinaryUrl = await uploadToCloudinary(file);
           return cloudinaryUrl;
         } catch {
-          setUploadError("照片上傳失敗，請重試");
+          setUploadError("Photo upload failed, please try again");
           return null;
         }
       });
@@ -190,7 +175,7 @@ const Welcome = ({
       }
     } catch (error) {
       console.error("上傳失敗:", error);
-      setUploadError("上傳過程失敗，請重試");
+      setUploadError("Upload failed, please try again");
     } finally {
       setUploading(false);
     }
@@ -216,7 +201,7 @@ const Welcome = ({
       onUserDataUpdate(updatedUserData);
     } catch (error) {
       console.error("移除照片失敗:", error);
-      setUploadError("移除照片失敗，請重試");
+      setUploadError("Failed to remove photo, please try again");
     }
   };
 
@@ -241,7 +226,7 @@ const Welcome = ({
   // 保存編輯
   const handleEditSave = async () => {
     if (!editingData.idolName || !editingData.meetingDate) {
-      setUploadError("偶像名稱和相遇日期都是必填的");
+      setUploadError("Artist name and support date are required");
       return;
     }
 
@@ -249,32 +234,28 @@ const Welcome = ({
       setUploading(true);
       setUploadError("");
 
-      // 1. 更新偶像資料
+      // 1. 更新偶像名稱和相遇日期（都存在 idol 文件中）
       await updateDoc(doc(db, "idols", userData.id), {
         idolName: editingData.idolName,
+        startDate: new Date(editingData.meetingDate).toISOString(),
         updatedAt: new Date()
       });
 
-      // 2. 更新用戶設定中的相遇日期
-      await setDoc(doc(db, "userSettings", user.uid), {
-        startDate: new Date(editingData.meetingDate).toISOString(),
-        updatedAt: new Date()
-      }, { merge: true });
-
-      // 3. 更新本地狀態
+      // 2. 更新本地狀態
       const updatedUserData = {
         ...userData,
-        idolName: editingData.idolName
+        idolName: editingData.idolName,
+        startDate: new Date(editingData.meetingDate).toISOString()
       };
       onUserDataUpdate(updatedUserData);
 
-      // 4. 更新相遇日期
+      // 3. 更新相遇日期
       setStartDate(new Date(editingData.meetingDate));
 
       setShowEditModal(false);
     } catch (error) {
       console.error("保存編輯失敗:", error);
-      setUploadError("保存失敗，請重試");
+      setUploadError("Save failed, please try again");
     } finally {
       setUploading(false);
     }
@@ -289,45 +270,45 @@ const Welcome = ({
             Hi, {getUserDisplayName()}!
           </span>
           {startDate && (
-            <span className="days-count">{calculateDuration()} 天</span>
+            <span className="days-count">{calculateDuration()} days</span>
           )}
         </div>
 
         <div className="large-text">
           <div className="artistic-title-main">
-            <span className="main-letter main-letter-1">L</span>
-            <span className="main-letter main-letter-2">o</span>
-            <span className="main-letter main-letter-3">n</span>
-            <span className="main-letter main-letter-4">g</span>
-            <span className="main-letter main-letter-5">-</span>
+            <span className="main-letter main-letter-1">A</span>
+            <span className="main-letter main-letter-2">r</span>
+            <span className="main-letter main-letter-3">t</span>
+            <span className="main-letter main-letter-4">i</span>
+            <span className="main-letter main-letter-5">s</span>
             <span className="main-letter main-letter-6">t</span>
-            <span className="main-letter main-letter-7">e</span>
-            <span className="main-letter main-letter-8">r</span>
-            <span className="main-letter main-letter-9">m</span>
           </div>
           <div className="artistic-title-sub">
-            <span className="sub-letter sub-letter-1">S</span>
-            <span className="sub-letter sub-letter-2">u</span>
-            <span className="sub-letter sub-letter-3">p</span>
-            <span className="sub-letter sub-letter-4">p</span>
+            <span className="sub-letter sub-letter-1">P</span>
+            <span className="sub-letter sub-letter-2">a</span>
+            <span className="sub-letter sub-letter-3">t</span>
+            <span className="sub-letter sub-letter-4">r</span>
             <span className="sub-letter sub-letter-5">o</span>
-            <span className="sub-letter sub-letter-6">r</span>
-            <span className="sub-letter sub-letter-7">t</span>
-            <span className="sub-letter sub-letter-8">J</span>
-            <span className="sub-letter sub-letter-9">o</span>
-            <span className="sub-letter sub-letter-10">u</span>
-            <span className="sub-letter sub-letter-11">r</span>
-            <span className="sub-letter sub-letter-12">n</span>
-            <span className="sub-letter sub-letter-13">a</span>
-            <span className="sub-letter sub-letter-14">l</span>
+            <span className="sub-letter sub-letter-6">n</span>
+            <span className="sub-letter sub-letter-7">a</span>
+            <span className="sub-letter sub-letter-8">g</span>
+            <span className="sub-letter sub-letter-9">e</span>
+            <span className="sub-letter sub-letter-10"> </span>
+            <span className="sub-letter sub-letter-11">J</span>
+            <span className="sub-letter sub-letter-12">o</span>
+            <span className="sub-letter sub-letter-13">u</span>
+            <span className="sub-letter sub-letter-14">r</span>
+            <span className="sub-letter sub-letter-15">n</span>
+            <span className="sub-letter sub-letter-16">a</span>
+            <span className="sub-letter sub-letter-17">l</span>
           </div>
           {userData?.idolName && (
             <div className="idol-name-section">
               <div className="idol-name-main">{userData.idolName}</div>
-              <button 
+              <button
                 className="edit-button"
                 onClick={handleEditClick}
-                title="編輯偶像資料"
+                title="Edit Artist Info"
               >
                 ✎
               </button>
@@ -375,7 +356,7 @@ const Welcome = ({
                     <button
                       className="remove-photo-btn"
                       onClick={() => handleRemovePhoto(index)}
-                      title="移除照片"
+                      title="Remove photo"
                     >
                       ✕
                     </button>
@@ -403,10 +384,10 @@ const Welcome = ({
         {showEditModal && (
           <div className="modal-overlay">
             <div className="modal-content edit-modal">
-              <h3>編輯偶像資料</h3>
+              <h3>Edit Artist Info</h3>
               <div className="edit-form">
                 <div className="form-row">
-                  <label>偶像名稱</label>
+                  <label>Artist Name</label>
                   <input
                     type="text"
                     value={editingData.idolName}
@@ -414,12 +395,12 @@ const Welcome = ({
                       ...editingData,
                       idolName: e.target.value
                     })}
-                    placeholder="輸入偶像名稱"
+                    placeholder="Enter artist name"
                     disabled={uploading}
                   />
                 </div>
                 <div className="form-row">
-                  <label>相遇日期</label>
+                  <label>Supporting Since</label>
                   <input
                     type="date"
                     value={editingData.meetingDate}
@@ -431,19 +412,19 @@ const Welcome = ({
                   />
                 </div>
                 <div className="form-buttons">
-                  <button 
+                  <button
                     className="btn-primary"
                     onClick={handleEditSave}
                     disabled={uploading}
                   >
-                    {uploading ? "保存中..." : "保存"}
+                    {uploading ? "Saving..." : "Save"}
                   </button>
-                  <button 
+                  <button
                     className="btn-secondary"
                     onClick={handleEditCancel}
                     disabled={uploading}
                   >
-                    取消
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -454,11 +435,11 @@ const Welcome = ({
         <div className="action-button">
           {!userData?.idolName ? (
             <button className="start-button" onClick={onStart}>
-              Setup Profile
+              Begin Your Journey
             </button>
           ) : (
             <button className="journal-button" onClick={onJournalClick}>
-              Enter Journal
+              Support Log
             </button>
           )}
         </div>

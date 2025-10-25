@@ -111,24 +111,50 @@ const Setup = ({ onComplete, user }) => {
       setError("");
 
       try {
-        // 1. 保存偶像資料
+        // 1. 檢查用戶現有的 idol 數量（判斷是否為第一個 idol）
+        const idolsQuery = query(
+          collection(db, "idols"),
+          where("userId", "==", user.uid)
+        );
+        const existingIdolsSnapshot = await getDocs(idolsQuery);
+        const isFirstIdol = existingIdolsSnapshot.empty;
+
+        console.log("📊 現有 idol 數量:", existingIdolsSnapshot.size);
+        console.log("🆕 是否為第一個 idol:", isFirstIdol);
+
+        // 2. 保存偶像資料（包含各自的相遇日期）
         const idolDoc = await addDoc(collection(db, "idols"), {
           idolName,
           photos, // Now storing Cloudinary URLs (can be empty array)
           userId: user.uid, // 加入用戶 ID 進行隔離
+          startDate: new Date(meetingDate).toISOString(), // 每個 idol 各自的相遇日期
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
         });
 
-        // 2. 保存用戶設定（包含相遇日期）- 使用 merge 保留現有資料
-        const userSettings = {
-          startDate: new Date(meetingDate).toISOString(),
-          updatedAt: Timestamp.now()
-        };
-        await setDoc(doc(db, "userSettings", user.uid), userSettings, { merge: true });
+        console.log("✅ 成功創建 idol:", idolDoc.id);
 
+        // 3. 如果是第一個 idol，同時保存到 userSettings（向後兼容）
+        if (isFirstIdol) {
+          const userSettings = {
+            startDate: new Date(meetingDate).toISOString(),
+            updatedAt: Timestamp.now()
+          };
+          await setDoc(doc(db, "userSettings", user.uid), userSettings, { merge: true });
+        }
+
+        // 4. 更新 localStorage
         localStorage.setItem("current_idol_id", idolDoc.id);
-        onComplete({ idolName, photos, id: idolDoc.id, userId: user.uid });
+
+        // 5. 通知父組件完成，並傳遞 isFirstIdol 參數
+        onComplete({
+          idolName,
+          photos,
+          id: idolDoc.id,
+          userId: user.uid,
+          startDate: new Date(meetingDate).toISOString(), // 傳遞 startDate
+          isFirstIdol // 重要：告訴 App.jsx 這是不是第一個 idol
+        });
       } catch (error) {
         console.error("Failed to save idol data:", error);
         setError("Save failed, please try again later");
@@ -168,18 +194,18 @@ const Setup = ({ onComplete, user }) => {
                   <span className="letter letter-4">u</span>
                   <span className="letter letter-5">p</span>
                 </div>
-                <div className="subtitle">Enter your idol info</div>
+                <div className="subtitle">Enter artist information</div>
               </div>
               <input
                 type="text"
                 value={idolName}
                 onChange={(e) => setIdolName(e.target.value)}
-                placeholder="Enter your idol's name..."
+                placeholder="Enter artist name..."
                 className="setup-input"
               />
               <div className="meeting-date-section">
                 <label htmlFor="meetingDate" className="date-label">
-                  與 {idolName || '偶像'} 相遇的日子：
+                  When you started supporting {idolName || 'this artist'}:
                 </label>
                 <input
                   id="meetingDate"
@@ -189,7 +215,7 @@ const Setup = ({ onComplete, user }) => {
                   className="setup-input date-input"
                 />
                 <div className="date-hint">
-                  記錄下這個特別的日子 ✨
+                  Mark this special beginning ✨
                 </div>
               </div>
             </div>

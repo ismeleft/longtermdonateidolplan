@@ -133,8 +133,8 @@ body {
 
 .input-group input:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: #B8860B;
+  box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.1);
 }
 
 /* 追星紀念日區 */
@@ -175,7 +175,7 @@ body {
 }
 
 .anniversary-text strong {
-  color: #6366f1;
+  color: #B8860B;
   font-weight: 700;
   font-size: 1rem;
 }
@@ -231,7 +231,7 @@ body {
 
 .btn-primary {
   flex: 1;
-  background: #6366f1;
+  background: #B8860B;
   color: white;
   border: none;
   padding: 0.875rem 1rem;
@@ -243,7 +243,7 @@ body {
 }
 
 .btn-primary:hover {
-  background: #5046e4;
+  background: #8B6914;
   transform: translateY(-1px);
 }
 
@@ -323,8 +323,8 @@ body {
 .form-row input:focus,
 .form-row select:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: #B8860B;
+  box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.1);
 }
 
 .form-row input.error,
@@ -482,8 +482,8 @@ body {
 
 .edit-form .form-row input:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: #B8860B;
+  box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.1);
 }
 
 .edit-form .form-row input:disabled {
@@ -566,8 +566,8 @@ body {
 
 .expense-category {
   font-size: 0.75rem;
-  background: #e0e7ff;
-  color: #3730a3;
+  background: #F5EFE0;
+  color: #8B6914;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
   font-weight: 500;
@@ -617,12 +617,12 @@ body {
 }
 
 .btn-edit {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #F5EFE0;
+  color: #8B6914;
 }
 
 .btn-edit:hover {
-  background: #bfdbfe;
+  background: #E8DCC8;
 }
 
 .btn-delete {
@@ -767,8 +767,8 @@ body {
 
 .budget-month-item input:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: #B8860B;
+  box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.1);
 }
 
 .budget-summary {
@@ -788,7 +788,7 @@ body {
 }
 
 .summary-item span:last-child {
-  color: #6366f1;
+  color: #B8860B;
   font-size: 1.125rem;
 }
 
@@ -1518,8 +1518,8 @@ body {
 
 .form-group input:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: #B8860B;
+  box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.1);
 }
 
 .form-group input:disabled {
@@ -1556,12 +1556,12 @@ body {
 }
 
 .auth-button.primary {
-  background: #6366f1;
+  background: #B8860B;
   color: white;
 }
 
 .auth-button.primary:hover:not(:disabled) {
-  background: #5046e4;
+  background: #8B6914;
   transform: translateY(-1px);
 }
 
@@ -1613,7 +1613,7 @@ body {
 .auth-switch-button {
   background: none;
   border: none;
-  color: #6366f1;
+  color: #B8860B;
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
@@ -1622,7 +1622,7 @@ body {
 }
 
 .auth-switch-button:hover:not(:disabled) {
-  color: #5046e4;
+  color: #8B6914;
 }
 
 .auth-switch-button:disabled {

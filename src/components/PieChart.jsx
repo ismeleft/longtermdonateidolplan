@@ -7,13 +7,13 @@ const PieChart = ({ data, size = 200 }) => {
     return (
       <div className="pie-chart-container" style={{ width: size, height: size }}>
         <div className="empty-chart">
-          <span>尚無數據</span>
+          <span>No data yet</span>
         </div>
       </div>
     );
   }
 
-  // 計算角度
+  // Calculate angles
   let currentAngle = 0;
   const segments = data.map((item, index) => {
     const percentage = (item.value / total) * 100;
@@ -96,17 +96,17 @@ const PieChart = ({ data, size = 200 }) => {
   );
 };
 
-// 簡單的顏色生成函數
+// Simple color generation function - Artist Patronage warm palette with better contrast
 const getColor = (index) => {
   const colors = [
-    '#6366f1', // 藍紫色 - 周邊
-    '#10b981', // 綠色 - 演唱會
-    '#f59e0b', // 橙色 - 應援
-    '#ef4444', // 紅色 - 其他
-    '#8b5cf6', // 紫色
-    '#06b6d4', // 青色
-    '#84cc16', // 萊姆綠
-    '#f97316'  // 橙紅色
+    '#B8860B', // Dark goldenrod - Merchandise
+    '#FF7F50', // Coral - Concert
+    '#A0522D', // Sienna - Support Event
+    '#FFB347', // Pastel orange - Other
+    '#C1440E', // Rust - Additional
+    '#9B870C', // Dark olive - Additional
+    '#E87722', // Carrot orange - Additional
+    '#8B4513'  // Saddle brown - Additional
   ];
   return colors[index % colors.length];
 };

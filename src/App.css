@@ -1,11 +1,13 @@
 :root {
-  --bg-primary: #f8f9fa;
-  --bg-secondary: #f1f3f4;
-  --text-primary: #475569;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-  --accent: #64748b;
-  --accent-light: #e2e8f0;
+  /* Artist Patronage Theme - Warm & Artistic */
+  --bg-primary: #FAF8F3;        /* Soft cream */
+  --bg-secondary: #F5F1E8;      /* Warm beige */
+  --text-primary: #4A3F35;      /* Deep brown */
+  --text-secondary: #8B7355;    /* Medium brown */
+  --text-muted: #A89080;        /* Light brown */
+  --accent: #B8860B;            /* Dark goldenrod */
+  --accent-light: #E8DCC8;      /* Light tan */
+  --accent-gold: #DAA520;       /* Goldenrod */
 }
 
 #root {
@@ -170,76 +172,91 @@
   transform: rotate(-5deg);
 }
 
-/* 副標題 "Support Journal" 字母位置 */
-.sub-letter-1 {
+/* 副標題 "Patronage Journal" 字母位置 - 更均勻分布 */
+.sub-letter-1 {  /* P */
   top: 1rem;
-  left: 5%;
+  left: 3%;
   transform: rotate(3deg);
 }
-.sub-letter-2 {
+.sub-letter-2 {  /* a */
   top: 2.5rem;
-  left: 12%;
+  left: 9%;
   transform: rotate(-2deg);
 }
-.sub-letter-3 {
+.sub-letter-3 {  /* t */
   top: 0rem;
-  left: 18%;
+  left: 15%;
   transform: rotate(4deg);
 }
-.sub-letter-4 {
+.sub-letter-4 {  /* r */
   top: 2rem;
-  left: 24%;
+  left: 21%;
   transform: rotate(-3deg);
 }
-.sub-letter-5 {
+.sub-letter-5 {  /* o */
   top: 0.5rem;
-  left: 30%;
+  left: 27%;
   transform: rotate(2deg);
 }
-.sub-letter-6 {
+.sub-letter-6 {  /* n */
   top: 3rem;
-  left: 36%;
+  left: 33%;
   transform: rotate(-4deg);
 }
-.sub-letter-7 {
+.sub-letter-7 {  /* a */
   top: 1rem;
-  left: 42%;
+  left: 39%;
   transform: rotate(3deg);
 }
-.sub-letter-8 {
+.sub-letter-8 {  /* g */
   top: 2.5rem;
-  left: 52%;
+  left: 45%;
   transform: rotate(-2deg);
 }
-.sub-letter-9 {
+.sub-letter-9 {  /* e */
   top: 0rem;
-  left: 58%;
+  left: 51%;
   transform: rotate(4deg);
 }
-.sub-letter-10 {
+.sub-letter-10 {  /* space */
   top: 2rem;
-  left: 64%;
+  left: 57%;
   transform: rotate(-3deg);
 }
-.sub-letter-11 {
+.sub-letter-11 {  /* J */
   top: 0.5rem;
-  left: 70%;
+  left: 63%;
   transform: rotate(2deg);
 }
-.sub-letter-12 {
+.sub-letter-12 {  /* o */
   top: 3rem;
-  left: 76%;
+  left: 69%;
   transform: rotate(-4deg);
 }
-.sub-letter-13 {
+.sub-letter-13 {  /* u */
   top: 1rem;
-  left: 82%;
+  left: 75%;
   transform: rotate(3deg);
 }
-.sub-letter-14 {
+.sub-letter-14 {  /* r */
   top: 2.5rem;
-  left: 88%;
+  left: 81%;
   transform: rotate(-2deg);
+}
+.sub-letter-15 {  /* n */
+  top: 0rem;
+  left: 87%;
+  transform: rotate(4deg);
+}
+.sub-letter-16 {  /* a */
+  top: 2rem;
+  left: 91%;
+  transform: rotate(-3deg);
+}
+.sub-letter-17 {  /* l */
+  top: 0.5rem;
+  left: 95%;
+  transform: rotate(2deg);
 }
 
 .idol-name-main {
@@ -684,5 +701,75 @@
     right: 0.75rem;
     padding: 0.4rem 0.8rem;
     font-size: 0.65rem;
+  }
+}
+
+/* ========================================
+   多 Idol 側邊欄佈局樣式
+   ======================================== */
+
+/* 主內容區容器 */
+.main-app-content {
+  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+/* 桌面版：當有側邊欄時，主內容區左移 */
+@media (min-width: 768px) {
+  .main-app-content.with-sidebar {
+    margin-left: 240px;
+  }
+}
+
+/* 手機版漢堡選單按鈕 */
+.mobile-menu-btn {
+  position: fixed;
+  top: 2rem;
+  left: 1rem;
+  z-index: 950;
+  background: rgba(248, 249, 250, 0.95);
+  border: 1px solid var(--accent-light);
+  color: var(--text-secondary);
+  padding: 0.625rem 0.875rem;
+  font-size: 1.25rem;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  border-radius: 4px;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-menu-btn:hover {
+  background: var(--accent-light);
+  color: var(--text-primary);
+  transform: scale(1.05);
+  border-color: var(--accent);
+}
+
+/* 桌面版隱藏漢堡選單 */
+@media (min-width: 768px) {
+  .mobile-menu-btn {
+    display: none;
+  }
+}
+
+/* 手機版調整 home 和 logout 按鈕位置，避免與漢堡選單重疊 */
+@media (max-width: 767px) {
+  .main-app-content.with-sidebar .home-button {
+    left: auto;
+    right: 1rem;
+    top: 1rem;
+    transform: none;
+  }
+
+  .main-app-content.with-sidebar .logout-button {
+    top: 1rem;
+    right: 1rem;
   }
 }

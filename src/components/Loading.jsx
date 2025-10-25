@@ -48,7 +48,7 @@ const Loading = () => {
   return (
     <div className="loading-container">
       <div className="loading-content">
-        {/* 藝術性字母設計 */}
+        {/* Artistic letter design */}
         <motion.div
           className="loading-letters"
           variants={containerVariants}
@@ -66,7 +66,7 @@ const Loading = () => {
           ))}
         </motion.div>
 
-        {/* 簡約的動態點 */}
+        {/* Minimalist animated dots */}
         <div className="loading-dots">
           {[0, 1, 2].map((i) => (
             <motion.div
@@ -81,7 +81,7 @@ const Loading = () => {
           ))}
         </div>
 
-        {/* 細線裝飾 */}
+        {/* Fine line decoration */}
         <motion.div
           className="loading-line"
           initial={{ scaleX: 0 }}

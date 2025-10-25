@@ -51,7 +51,7 @@ const Journal = ({ idolName, user }) => {
         setMonthlyBudgets(settings.monthlyBudgets || {});
         setCountdownEvents(settings.countdownEvents || []);
       } else {
-        // 如果沒有設定文檔，創建一個預設的
+        // If no settings document, create a default one
         const defaultSettings = {
           startDate: new Date().toISOString(),
           monthlyBudgets: {},
@@ -62,7 +62,7 @@ const Journal = ({ idolName, user }) => {
         setUserSettings(defaultSettings);
       }
     } catch (error) {
-      console.error("加載用戶設定失敗:", error);
+      console.error("Failed to load user settings:", error);
     }
   }, [user]);
 
@@ -78,7 +78,7 @@ const Journal = ({ idolName, user }) => {
       await setDoc(doc(db, "userSettings", user.uid), settings);
       setUserSettings(settings);
     } catch (error) {
-      console.error("保存用戶設定失敗:", error);
+      console.error("Failed to save user settings:", error);
     }
   }, [user, startDate, monthlyBudgets, countdownEvents]);
 
@@ -101,45 +101,45 @@ const Journal = ({ idolName, user }) => {
 
       setExpenses(loadedExpenses);
     } catch (error) {
-      console.error("加載支出記錄失敗:", error);
-      alert("加載支出記錄失敗，請稍後再試");
+      console.error("Failed to load support records:", error);
+      alert("Failed to load support records, please try again later");
     }
   }, [user, idolName]);
 
-  // 從 Firebase 加載用戶設定
+  // Load user settings from Firebase
   useEffect(() => {
     loadUserSettings();
   }, [loadUserSettings]);
 
-  // 從 Firebase 加載數據
+  // Load data from Firebase
   useEffect(() => {
     loadExpenses();
   }, [loadExpenses]);
 
-  // 保存設定到 Firebase
+  // Save settings to Firebase
   useEffect(() => {
     if (user && userSettings) {
       saveUserSettings();
     }
   }, [user, userSettings, saveUserSettings]);
 
-  // 驗證表單
+  // Validate form
   const validateForm = () => {
     const newErrors = {};
     if (!newExpense.amount || Number(newExpense.amount) <= 0) {
-      newErrors.amount = "請輸入有效金額";
+      newErrors.amount = "Please enter a valid amount";
     }
     if (!newExpense.category) {
-      newErrors.category = "請選擇分類";
+      newErrors.category = "Please select a category";
     }
     if (!newExpense.description) {
-      newErrors.description = "請輸入描述";
+      newErrors.description = "Please enter a description";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // 計算追星時長（天數）
+  // Calculate support duration (days)
   const calculateDuration = () => {
     const now = new Date();
     const diffTime = Math.abs(now - startDate);
@@ -147,7 +147,7 @@ const Journal = ({ idolName, user }) => {
     return diffDays;
   };
 
-  // 計算總支出
+  // Calculate total support
   const calculateTotalExpenses = () => {
     return expenses.reduce(
       (total, expense) => total + Number(expense.amount),
@@ -155,7 +155,7 @@ const Journal = ({ idolName, user }) => {
     );
   };
 
-  // 計算年度支出
+  // Calculate yearly support
   const calculateYearlyExpenses = () => {
     const currentYear = new Date().getFullYear();
     return expenses
@@ -164,20 +164,20 @@ const Journal = ({ idolName, user }) => {
           const expenseDate = expense.date.toDate();
           return expenseDate.getFullYear() === currentYear;
         } catch (error) {
-          console.error("計算年度支出時日期轉換失敗:", error);
+          console.error("Date conversion failed when calculating yearly support:", error);
           return false;
         }
       })
       .reduce((total, expense) => total + Number(expense.amount), 0);
   };
 
-  // 獲取特定月份的預算
+  // Get monthly budget
   const getMonthlyBudget = (year, month) => {
     const key = `${year}-${String(month).padStart(2, "0")}`;
     return monthlyBudgets[key] || 0;
   };
 
-  // 設定特定月份的預算
+  // Set monthly budget
   const setMonthlyBudget = (year, month, amount) => {
     const key = `${year}-${String(month).padStart(2, "0")}`;
     setMonthlyBudgets((prev) => ({
@@ -186,7 +186,7 @@ const Journal = ({ idolName, user }) => {
     }));
   };
 
-  // 計算年度總預算
+  // Calculate yearly total budget
   const calculateYearlyBudget = () => {
     const currentYear = new Date().getFullYear();
     let total = 0;
@@ -196,14 +196,14 @@ const Journal = ({ idolName, user }) => {
     return total;
   };
 
-  // 計算年度剩餘預算
+  // Calculate remaining annual budget
   const calculateRemainingBudget = () => {
     const yearlyExpenses = calculateYearlyExpenses();
     const yearlyBudget = calculateYearlyBudget();
     return yearlyBudget - yearlyExpenses;
   };
 
-  // 計算各類別支出
+  // Calculate category support
   const calculateCategoryExpenses = () => {
     return expenses.reduce((acc, expense) => {
       acc[expense.category] =
@@ -212,7 +212,7 @@ const Journal = ({ idolName, user }) => {
     }, {});
   };
 
-  // 為圓餅圖準備數據
+  // Prepare data for pie chart
   const getPieChartData = () => {
     const categoryExpenses = calculateCategoryExpenses();
     return Object.entries(categoryExpenses).map(([category, amount]) => ({
@@ -221,7 +221,7 @@ const Journal = ({ idolName, user }) => {
     }));
   };
 
-  // 計算倒數天數
+  // Calculate days remaining
   const calculateDaysLeft = (targetDate) => {
     const now = new Date();
     const target = new Date(targetDate);
@@ -230,7 +230,7 @@ const Journal = ({ idolName, user }) => {
     return diffDays;
   };
 
-  // 處理添加或更新支出
+  // Handle add or update support
   const handleAddExpense = async (e) => {
     e.preventDefault();
 
@@ -245,13 +245,13 @@ const Journal = ({ idolName, user }) => {
         category: newExpense.category,
         description: newExpense.description,
         idolName,
-        userId: user.uid, // 加入用戶 ID
+        userId: user.uid, // Add user ID
         date: now,
         createdAt: now,
       };
 
       if (editingExpense) {
-        // 更新現有支出
+        // Update existing support
         const expenseRef = doc(db, "expenses", editingExpense.id);
         await updateDoc(expenseRef, {
           ...expenseData,
@@ -266,13 +266,13 @@ const Journal = ({ idolName, user }) => {
           )
         );
       } else {
-        // 添加新支出
+        // Add new support
         const docRef = await addDoc(collection(db, "expenses"), expenseData);
         const newDoc = { id: docRef.id, ...expenseData };
         setExpenses((prevExpenses) => [...prevExpenses, newDoc]);
       }
 
-      // 重置表單
+      // Reset form
       setNewExpense({
         amount: "",
         category: "",
@@ -282,17 +282,17 @@ const Journal = ({ idolName, user }) => {
       setEditingExpense(null);
       setErrors({});
 
-      // 重新加載數據以確保同步
+      // Reload data to ensure sync
       await loadExpenses();
     } catch (error) {
-      console.error("保存支出記錄失敗:", error);
-      alert("保存支出記錄失敗，請稍後再試");
+      console.error("Failed to save support record:", error);
+      alert("Failed to save support record, please try again later");
     }
   };
 
-  // 處理刪除支出
+  // Handle delete support
   const handleDeleteExpense = async (expenseId) => {
-    if (!window.confirm("確定要刪除這筆支出嗎？")) {
+    if (!window.confirm("Are you sure you want to delete this record?")) {
       return;
     }
 
@@ -303,12 +303,12 @@ const Journal = ({ idolName, user }) => {
         prevExpenses.filter((expense) => expense.id !== expenseId)
       );
     } catch (error) {
-      console.error("刪除支出記錄失敗:", error);
-      alert("刪除支出記錄失敗，請稍後再試");
+      console.error("Failed to delete support record:", error);
+      alert("Failed to delete support record, please try again later");
     }
   };
 
-  // 處理編輯支出
+  // Handle edit support
   const handleEditExpense = (expense) => {
     setEditingExpense(expense);
     setNewExpense({
@@ -319,22 +319,22 @@ const Journal = ({ idolName, user }) => {
     setShowAddForm(true);
   };
 
-  // 格式化日期
+  // Format date
   const formatDate = (timestamp) => {
-    if (!timestamp) return "日期未知";
+    if (!timestamp) return "Unknown date";
     try {
       const date = timestamp.toDate();
-      return date.toLocaleDateString("zh-TW", {
+      return date.toLocaleDateString("en-US", {
         month: "2-digit",
         day: "2-digit",
       });
     } catch (error) {
-      console.error("日期格式化失敗:", error);
-      return "日期格式錯誤";
+      console.error("Date formatting failed:", error);
+      return "Invalid date";
     }
   };
 
-  // 添加新倒數事件
+  // Add new countdown event
   const handleAddEvent = (e) => {
     e.preventDefault();
     if (!newEvent.title || !newEvent.date) return;
@@ -350,48 +350,48 @@ const Journal = ({ idolName, user }) => {
     setShowAddEventForm(false);
   };
 
-  // 刪除倒數事件
+  // Delete countdown event
   const handleDeleteEvent = (eventId) => {
     setCountdownEvents(countdownEvents.filter((event) => event.id !== eventId));
   };
 
   return (
     <div className="accounting-app">
-      {/* 頁面標題 */}
+      {/* Page title */}
       <header className="app-header">
-        <h1 className="app-title">{idolName} 追星記帳</h1>
+        <h1 className="app-title">{idolName} Patronage Journal</h1>
         <div className="header-stats">
-          <span className="days-count">{calculateDuration()} 天</span>
+          <span className="days-count">{calculateDuration()} days</span>
         </div>
       </header>
 
-      {/* 主要統計卡片 */}
+      {/* Main statistics cards */}
       <div className="stats-grid">
         <div className="stat-item">
-          <div className="stat-label">總支出</div>
+          <div className="stat-label">Total Support</div>
           <div className="stat-value">${calculateTotalExpenses()}</div>
         </div>
         <div className="stat-item">
-          <div className="stat-label">本年度支出</div>
+          <div className="stat-label">This Year</div>
           <div className="stat-value">${calculateYearlyExpenses()}</div>
         </div>
         <div className="stat-item">
-          <div className="stat-label">年度預算</div>
+          <div className="stat-label">Annual Budget</div>
           <div className="stat-value">${calculateYearlyBudget()}</div>
         </div>
         <div className="stat-item">
-          <div className="stat-label">剩餘預算</div>
+          <div className="stat-label">Remaining</div>
           <div className="stat-value">${calculateRemainingBudget()}</div>
         </div>
       </div>
 
-      {/* 主要內容區 */}
+      {/* Main content area */}
       <div className="main-content-grid">
         <div className="budget-section">
-          <h3>預算管理</h3>
+          <h3>Budget Management</h3>
           <div className="budget-controls">
             <div className="input-group">
-              <label>當月預算：</label>
+              <label>Current Month Budget:</label>
               <input
                 type="number"
                 value={getMonthlyBudget(
@@ -415,43 +415,43 @@ const Journal = ({ idolName, user }) => {
             onClick={() => setShowBudgetManager(true)}
             style={{ marginTop: "1rem", width: "100%" }}
           >
-            管理所有月份預算
+            Manage Monthly Budgets
           </button>
         </div>
 
-        {/* 倒數事件 */}
+        {/* Countdown events */}
         <div className="countdown-section">
-          <h3>倒數日</h3>
+          <h3>Countdowns</h3>
           <div className="countdown-list">
             {countdownEvents.length > 0 ? (
               countdownEvents.map((event) => (
                 <div key={event.id} className="countdown-item">
                   <span className="event-name">{event.title}</span>
                   <span className="event-countdown">
-                    還有 {calculateDaysLeft(event.date)} 天
+                    {calculateDaysLeft(event.date)} days left
                   </span>
                   <button
                     className="btn-delete"
                     onClick={() => handleDeleteEvent(event.id)}
                   >
-                    刪除
+                    Delete
                   </button>
                 </div>
               ))
             ) : (
-              <div className="empty-state">尚無倒數事件</div>
+              <div className="empty-state">No countdowns yet</div>
             )}
           </div>
         </div>
       </div>
 
-      {/* 支出分析圖表 */}
+      {/* Support analysis chart */}
       <div className="chart-section">
-        <h3>支出分析</h3>
+        <h3>Support Analysis</h3>
         <PieChart data={getPieChartData()} size={200} />
       </div>
 
-      {/* 快速操作按鈕 */}
+      {/* Quick action buttons */}
       <div className="action-buttons">
         <button
           className="btn-primary"
@@ -461,17 +461,17 @@ const Journal = ({ idolName, user }) => {
             setNewExpense({ amount: "", category: "", description: "" });
           }}
         >
-          記一筆
+          Add Entry
         </button>
         <button
           className="btn-secondary"
           onClick={() => setShowAddEventForm(true)}
         >
-          添加倒數日
+          Add Countdown
         </button>
       </div>
 
-      {/* 新增支出表單 */}
+      {/* Add support form */}
       <AnimatePresence>
         {showAddForm && (
           <motion.div
@@ -481,7 +481,7 @@ const Journal = ({ idolName, user }) => {
             className="modal-overlay"
           >
             <div className="modal-content">
-              <h3>{editingExpense ? "編輯支出" : "新增支出"}</h3>
+              <h3>{editingExpense ? "Edit Support" : "Add Support"}</h3>
               <form onSubmit={handleAddExpense} className="expense-form">
                 <div className="form-row">
                   <input
@@ -490,7 +490,7 @@ const Journal = ({ idolName, user }) => {
                     onChange={(e) =>
                       setNewExpense({ ...newExpense, amount: e.target.value })
                     }
-                    placeholder="金額"
+                    placeholder="Amount"
                     className={errors.amount ? "error" : ""}
                   />
                   {errors.amount && (
@@ -505,11 +505,11 @@ const Journal = ({ idolName, user }) => {
                     }
                     className={errors.category ? "error" : ""}
                   >
-                    <option value="">選擇分類</option>
-                    <option value="周邊">周邊</option>
-                    <option value="演唱會">演唱會</option>
-                    <option value="應援">應援</option>
-                    <option value="其他">其他</option>
+                    <option value="">Select category</option>
+                    <option value="Merchandise">Merchandise</option>
+                    <option value="Concert">Concert</option>
+                    <option value="Support Event">Support Event</option>
+                    <option value="Other">Other</option>
                   </select>
                   {errors.category && (
                     <span className="error-text">{errors.category}</span>
@@ -525,7 +525,7 @@ const Journal = ({ idolName, user }) => {
                         description: e.target.value,
                       })
                     }
-                    placeholder="描述"
+                    placeholder="Description"
                     className={errors.description ? "error" : ""}
                   />
                   {errors.description && (
@@ -534,7 +534,7 @@ const Journal = ({ idolName, user }) => {
                 </div>
                 <div className="form-buttons">
                   <button type="submit" className="btn-primary">
-                    {editingExpense ? "更新" : "保存"}
+                    {editingExpense ? "Update" : "Save"}
                   </button>
                   <button
                     type="button"
@@ -545,7 +545,7 @@ const Journal = ({ idolName, user }) => {
                       setErrors({});
                     }}
                   >
-                    取消
+                    Cancel
                   </button>
                 </div>
               </form>
@@ -554,7 +554,7 @@ const Journal = ({ idolName, user }) => {
         )}
       </AnimatePresence>
 
-      {/* 新增倒數日表單 */}
+      {/* Add countdown form */}
       <AnimatePresence>
         {showAddEventForm && (
           <motion.div
@@ -564,7 +564,7 @@ const Journal = ({ idolName, user }) => {
             className="modal-overlay"
           >
             <div className="modal-content">
-              <h3>添加倒數日</h3>
+              <h3>Add Countdown</h3>
               <form onSubmit={handleAddEvent} className="event-form">
                 <div className="form-row">
                   <input
@@ -573,7 +573,7 @@ const Journal = ({ idolName, user }) => {
                     onChange={(e) =>
                       setNewEvent({ ...newEvent, title: e.target.value })
                     }
-                    placeholder="事件名稱（如：演唱會、回歸）"
+                    placeholder="Event name (e.g., Concert, Release)"
                   />
                 </div>
                 <div className="form-row">
@@ -587,7 +587,7 @@ const Journal = ({ idolName, user }) => {
                 </div>
                 <div className="form-buttons">
                   <button type="submit" className="btn-primary">
-                    保存
+                    Save
                   </button>
                   <button
                     type="button"
@@ -597,7 +597,7 @@ const Journal = ({ idolName, user }) => {
                       setNewEvent({ title: "", date: "" });
                     }}
                   >
-                    取消
+                    Cancel
                   </button>
                 </div>
               </form>
@@ -606,7 +606,7 @@ const Journal = ({ idolName, user }) => {
         )}
       </AnimatePresence>
 
-      {/* 月份預算管理彈窗 */}
+      {/* Monthly budget management modal */}
       <AnimatePresence>
         {showBudgetManager && (
           <motion.div
@@ -616,13 +616,13 @@ const Journal = ({ idolName, user }) => {
             className="modal-overlay"
           >
             <div className="modal-content budget-modal">
-              <h3>月份預算管理</h3>
+              <h3>Monthly Budget Management</h3>
               <div className="budget-grid">
                 {Array.from({ length: 12 }, (_, index) => {
                   const month = index + 1;
                   const year = new Date().getFullYear();
                   const monthName = new Date(year, index).toLocaleDateString(
-                    "zh-TW",
+                    "en-US",
                     { month: "long" }
                   );
 
@@ -643,7 +643,7 @@ const Journal = ({ idolName, user }) => {
               </div>
               <div className="budget-summary">
                 <div className="summary-item">
-                  <span>年度總預算：</span>
+                  <span>Annual Total Budget:</span>
                   <span>${calculateYearlyBudget()}</span>
                 </div>
               </div>
@@ -653,7 +653,7 @@ const Journal = ({ idolName, user }) => {
                   className="btn-primary"
                   onClick={() => setShowBudgetManager(false)}
                 >
-                  完成
+                  Done
                 </button>
               </div>
             </div>
@@ -661,12 +661,12 @@ const Journal = ({ idolName, user }) => {
         )}
       </AnimatePresence>
 
-      {/* 支出記錄列表 */}
+      {/* Support records list */}
       <div className="expenses-section">
-        <h3>支出記錄</h3>
+        <h3>Support Records</h3>
         <div className="expenses-list">
           {expenses.length === 0 ? (
-            <div className="empty-state">尚無支出記錄</div>
+            <div className="empty-state">No records yet</div>
           ) : (
             expenses.map((expense) => (
               <motion.div
@@ -695,13 +695,13 @@ const Journal = ({ idolName, user }) => {
                     className="btn-edit"
                     onClick={() => handleEditExpense(expense)}
                   >
-                    編輯
+                    Edit
                   </button>
                   <button
                     className="btn-delete"
                     onClick={() => handleDeleteExpense(expense.id)}
                   >
-                    刪除
+                    Delete
                   </button>
                 </div>
               </motion.div>

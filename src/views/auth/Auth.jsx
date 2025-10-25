@@ -28,13 +28,13 @@ const Auth = ({ onAuthSuccess }) => {
       } else {
         userCredential = await createUserWithEmailAndPassword(auth, email, password);
         
-        // 為新用戶創建用戶文檔
+        // Create user document for new user
         await createUserDocument(userCredential.user);
       }
 
       onAuthSuccess(userCredential.user);
     } catch (error) {
-      console.error("認證失敗:", error);
+      console.error("Authentication failed:", error);
       setError(getErrorMessage(error.code));
     } finally {
       setLoading(false);
@@ -49,7 +49,7 @@ const Auth = ({ onAuthSuccess }) => {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
       
-      // 檢查是否為新用戶，如果是則創建用戶文檔
+      // Check if new user, if so create user document
       const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
       if (!userDoc.exists()) {
         await createUserDocument(userCredential.user);
@@ -57,7 +57,7 @@ const Auth = ({ onAuthSuccess }) => {
 
       onAuthSuccess(userCredential.user);
     } catch (error) {
-      console.error("Google 登入失敗:", error);
+      console.error("Google sign-in failed:", error);
       setError(getErrorMessage(error.code));
     } finally {
       setLoading(false);
@@ -77,17 +77,17 @@ const Auth = ({ onAuthSuccess }) => {
   const getErrorMessage = (errorCode) => {
     switch (errorCode) {
       case "auth/user-not-found":
-        return "找不到此用戶";
+        return "User not found";
       case "auth/wrong-password":
-        return "密碼錯誤";
+        return "Incorrect password";
       case "auth/email-already-in-use":
-        return "此電子郵件已被使用";
+        return "Email already in use";
       case "auth/weak-password":
-        return "密碼過於簡單";
+        return "Password is too weak";
       case "auth/invalid-email":
-        return "無效的電子郵件格式";
+        return "Invalid email format";
       default:
-        return "認證失敗，請稍後再試";
+        return "Authentication failed, please try again later";
     }
   };
 
@@ -96,35 +96,35 @@ const Auth = ({ onAuthSuccess }) => {
       <div className="auth-content">
         <div className="auth-header">
           <h1 className="auth-title">
-            {isLogin ? "登入" : "註冊"}
+            {isLogin ? "Sign In" : "Sign Up"}
           </h1>
           <p className="auth-subtitle">
-            {isLogin ? "歡迎回來！" : "開始你的追星記帳之旅"}
+            {isLogin ? "Welcome back!" : "Begin your artist patronage journey"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="email">電子郵件</label>
+            <label htmlFor="email">Email</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="請輸入電子郵件"
+              placeholder="Enter your email"
               required
               disabled={loading}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">密碼</label>
+            <label htmlFor="password">Password</label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="請輸入密碼"
+              placeholder="Enter your password"
               required
               minLength="6"
               disabled={loading}
@@ -137,16 +137,16 @@ const Auth = ({ onAuthSuccess }) => {
             </div>
           )}
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="auth-button primary"
             disabled={loading}
           >
-            {loading ? "處理中..." : (isLogin ? "登入" : "註冊")}
+            {loading ? "Processing..." : (isLogin ? "Sign In" : "Sign Up")}
           </button>
 
           <div className="auth-divider">
-            <span>或</span>
+            <span>or</span>
           </div>
 
           <button
@@ -155,12 +155,12 @@ const Auth = ({ onAuthSuccess }) => {
             className="auth-button google"
             disabled={loading}
           >
-            <span>使用 Google {isLogin ? "登入" : "註冊"}</span>
+            <span>{isLogin ? "Sign in with Google" : "Sign up with Google"}</span>
           </button>
 
           <div className="auth-switch">
             <p>
-              {isLogin ? "還沒有帳號？" : "已經有帳號了？"}
+              {isLogin ? "Don't have an account?" : "Already have an account?"}
               <button
                 type="button"
                 onClick={() => {
@@ -170,7 +170,7 @@ const Auth = ({ onAuthSuccess }) => {
                 className="auth-switch-button"
                 disabled={loading}
               >
-                {isLogin ? "立即註冊" : "立即登入"}
+                {isLogin ? "Sign Up" : "Sign In"}
               </button>
             </p>
           </div>
