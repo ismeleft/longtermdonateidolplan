@@ -6,6 +6,7 @@ import Welcome from "./views/welcome/Welcome";
 import Setup from "./views/setup/Setup";
 import Journal from "./views/journal/Journal";
 import Auth from "./views/auth/Auth";
+import Loading from "./components/Loading";
 import { db, auth } from "./firebase";
 import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -132,7 +133,7 @@ const App = () => {
   };
 
   if (loading) {
-    return <div className="loading">加載中...</div>;
+    return <Loading />;
   }
 
   // 如果用戶未登入，顯示認證頁面

@@ -1,0 +1,222 @@
+.loading-container {
+  min-height: 100vh;
+  background-color: var(--bg-primary, #f8f9fa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  padding: 2rem;
+}
+
+/* 藝術性字母設計 - 模仿網站主標題風格 */
+.loading-letters {
+  position: relative;
+  height: 120px;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-letter {
+  position: absolute;
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 200;
+  color: var(--text-secondary, #64748b);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0;
+  transition: all 0.3s ease;
+}
+
+/* 每個字母的獨特位置 - 藝術性分散 */
+.loading-letter-1 {
+  top: 2rem;
+  left: 0%;
+  transform: rotate(-5deg);
+}
+
+.loading-letter-2 {
+  top: 0.5rem;
+  left: 14%;
+  transform: rotate(3deg);
+}
+
+.loading-letter-3 {
+  top: 2.5rem;
+  left: 28%;
+  transform: rotate(-2deg);
+}
+
+.loading-letter-4 {
+  top: 1rem;
+  left: 42%;
+  transform: rotate(4deg);
+}
+
+.loading-letter-5 {
+  top: 2rem;
+  left: 56%;
+  transform: rotate(-3deg);
+}
+
+.loading-letter-6 {
+  top: 0rem;
+  left: 70%;
+  transform: rotate(2deg);
+}
+
+.loading-letter-7 {
+  top: 2.5rem;
+  left: 84%;
+  transform: rotate(-4deg);
+}
+
+/* 動態點 */
+.loading-dots {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--accent, #64748b);
+}
+
+/* 細線裝飾 */
+.loading-line {
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-light, #e2e8f0),
+    transparent
+  );
+  transform-origin: center;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .loading-letters {
+    height: 100px;
+    max-width: 500px;
+  }
+
+  .loading-letter {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+  }
+
+  .loading-letter-1 {
+    top: 1.5rem;
+    left: 0%;
+  }
+
+  .loading-letter-2 {
+    top: 0.5rem;
+    left: 14%;
+  }
+
+  .loading-letter-3 {
+    top: 2rem;
+    left: 28%;
+  }
+
+  .loading-letter-4 {
+    top: 0.8rem;
+    left: 42%;
+  }
+
+  .loading-letter-5 {
+    top: 1.8rem;
+    left: 56%;
+  }
+
+  .loading-letter-6 {
+    top: 0rem;
+    left: 70%;
+  }
+
+  .loading-letter-7 {
+    top: 2rem;
+    left: 84%;
+  }
+
+  .loading-line {
+    width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loading-letters {
+    height: 80px;
+    max-width: 400px;
+  }
+
+  .loading-letter {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+  }
+
+  .loading-letter-1 {
+    top: 1rem;
+    left: 0%;
+  }
+
+  .loading-letter-2 {
+    top: 0.3rem;
+    left: 14%;
+  }
+
+  .loading-letter-3 {
+    top: 1.5rem;
+    left: 28%;
+  }
+
+  .loading-letter-4 {
+    top: 0.5rem;
+    left: 42%;
+  }
+
+  .loading-letter-5 {
+    top: 1.3rem;
+    left: 56%;
+  }
+
+  .loading-letter-6 {
+    top: 0rem;
+    left: 70%;
+  }
+
+  .loading-letter-7 {
+    top: 1.5rem;
+    left: 84%;
+  }
+
+  .loading-line {
+    width: 120px;
+  }
+
+  .loading-dots {
+    gap: 0.5rem;
+  }
+
+  .loading-dot {
+    width: 6px;
+    height: 6px;
+  }
+}
