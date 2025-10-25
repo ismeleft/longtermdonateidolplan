@@ -1,14 +1,23 @@
 import React, { useState, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { db } from "../../firebase";
-import { collection, addDoc, Timestamp, doc, setDoc, query, where, getDocs } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  Timestamp,
+  doc,
+  setDoc,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 
 const Setup = ({ onComplete, user }) => {
   const [step, setStep] = useState(1);
   const [idolName, setIdolName] = useState("");
   const [meetingDate, setMeetingDate] = useState(() => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    return today.toISOString().split("T")[0];
   });
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -119,9 +128,6 @@ const Setup = ({ onComplete, user }) => {
         const existingIdolsSnapshot = await getDocs(idolsQuery);
         const isFirstIdol = existingIdolsSnapshot.empty;
 
-        console.log("📊 現有 idol 數量:", existingIdolsSnapshot.size);
-        console.log("🆕 是否為第一個 idol:", isFirstIdol);
-
         // 2. 保存偶像資料（包含各自的相遇日期）
         const idolDoc = await addDoc(collection(db, "idols"), {
           idolName,
@@ -132,15 +138,15 @@ const Setup = ({ onComplete, user }) => {
           updatedAt: Timestamp.now(),
         });
 
-        console.log("✅ 成功創建 idol:", idolDoc.id);
-
         // 3. 如果是第一個 idol，同時保存到 userSettings（向後兼容）
         if (isFirstIdol) {
           const userSettings = {
             startDate: new Date(meetingDate).toISOString(),
-            updatedAt: Timestamp.now()
+            updatedAt: Timestamp.now(),
           };
-          await setDoc(doc(db, "userSettings", user.uid), userSettings, { merge: true });
+          await setDoc(doc(db, "userSettings", user.uid), userSettings, {
+            merge: true,
+          });
         }
 
         // 4. 更新 localStorage
@@ -153,7 +159,7 @@ const Setup = ({ onComplete, user }) => {
           id: idolDoc.id,
           userId: user.uid,
           startDate: new Date(meetingDate).toISOString(), // 傳遞 startDate
-          isFirstIdol // 重要：告訴 App.jsx 這是不是第一個 idol
+          isFirstIdol, // 重要：告訴 App.jsx 這是不是第一個 idol
         });
       } catch (error) {
         console.error("Failed to save idol data:", error);
@@ -205,7 +211,7 @@ const Setup = ({ onComplete, user }) => {
               />
               <div className="meeting-date-section">
                 <label htmlFor="meetingDate" className="date-label">
-                  When you started supporting {idolName || 'this artist'}:
+                  When you started supporting {idolName || "this artist"}:
                 </label>
                 <input
                   id="meetingDate"
@@ -214,9 +220,7 @@ const Setup = ({ onComplete, user }) => {
                   onChange={(e) => setMeetingDate(e.target.value)}
                   className="setup-input date-input"
                 />
-                <div className="date-hint">
-                  Mark this special beginning ✨
-                </div>
+                <div className="date-hint">Mark this special beginning ✨</div>
               </div>
             </div>
           ) : (
@@ -299,16 +303,16 @@ const Setup = ({ onComplete, user }) => {
                     ? "已選擇三張照片"
                     : `已選擇 ${photos.length} 張照片`}
                 </div>
-                
+
                 {photos.length === 0 && (
                   <div className="skip-option">
                     <button
                       className="skip-button-inline"
                       onClick={handleNext}
                       disabled={loading}
-                      style={{ cursor: loading ? 'not-allowed' : 'pointer' }}
+                      style={{ cursor: loading ? "not-allowed" : "pointer" }}
                     >
-                      {loading ? '處理中...' : '跳過照片上傳'}
+                      {loading ? "處理中..." : "跳過照片上傳"}
                     </button>
                     <div className="or-divider">或繼續上傳照片</div>
                   </div>

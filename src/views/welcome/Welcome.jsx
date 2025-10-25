@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { db } from "../../firebase";
-import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 
 const Welcome = ({
   onStart,
@@ -42,7 +42,6 @@ const Welcome = ({
 
   // 根据屏幕宽度计算卡片位置
   const getCardTransform = (index) => {
-    const isMobile = windowWidth <= 768;
     const isSmallMobile = windowWidth <= 480;
     const isTinyMobile = windowWidth <= 360;
 

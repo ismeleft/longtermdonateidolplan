@@ -24,7 +24,6 @@ const Journal = ({ idolName, user }) => {
   const [monthlyBudgets, setMonthlyBudgets] = useState({});
   const [showBudgetManager, setShowBudgetManager] = useState(false);
   const [countdownEvents, setCountdownEvents] = useState([]);
-  const [userSettings, setUserSettings] = useState(null);
   const [showAddEventForm, setShowAddEventForm] = useState(false);
   const [newEvent, setNewEvent] = useState({
     title: "",
@@ -44,7 +43,6 @@ const Journal = ({ idolName, user }) => {
       const settingsDoc = await getDoc(doc(db, "userSettings", user.uid));
       if (settingsDoc.exists()) {
         const settings = settingsDoc.data();
-        setUserSettings(settings);
         setStartDate(
           settings.startDate ? new Date(settings.startDate) : new Date()
         );
@@ -59,28 +57,11 @@ const Journal = ({ idolName, user }) => {
           updatedAt: Timestamp.now(),
         };
         await setDoc(doc(db, "userSettings", user.uid), defaultSettings);
-        setUserSettings(defaultSettings);
       }
     } catch (error) {
       console.error("Failed to load user settings:", error);
     }
   }, [user]);
-
-  const saveUserSettings = useCallback(async () => {
-    if (!user) return;
-    try {
-      const settings = {
-        startDate: startDate.toISOString(),
-        monthlyBudgets,
-        countdownEvents,
-        updatedAt: Timestamp.now(),
-      };
-      await setDoc(doc(db, "userSettings", user.uid), settings);
-      setUserSettings(settings);
-    } catch (error) {
-      console.error("Failed to save user settings:", error);
-    }
-  }, [user, startDate, monthlyBudgets, countdownEvents]);
 
   const loadExpenses = useCallback(async () => {
     if (!user || !idolName) return;
@@ -106,22 +87,23 @@ const Journal = ({ idolName, user }) => {
     }
   }, [user, idolName]);
 
-  // Load user settings from Firebase
+  // Load user settings from Firebase (only once on mount)
   useEffect(() => {
     loadUserSettings();
   }, [loadUserSettings]);
 
-  // Load data from Firebase
+  // Load data from Firebase (only once on mount)
   useEffect(() => {
     loadExpenses();
   }, [loadExpenses]);
 
-  // Save settings to Firebase
-  useEffect(() => {
-    if (user && userSettings) {
-      saveUserSettings();
-    }
-  }, [user, userSettings, saveUserSettings]);
+  // ⚠️ 移除自動保存的 useEffect，改為在需要時手動呼叫 saveUserSettings()
+  // 原本的 useEffect 會造成無限循環：userSettings 變化 → 保存 → 更新 state → 再次觸發...
+  // useEffect(() => {
+  //   if (user && userSettings) {
+  //     saveUserSettings();
+  //   }
+  // }, [user, userSettings, saveUserSettings]);
 
   // Validate form
   const validateForm = () => {
@@ -164,7 +146,10 @@ const Journal = ({ idolName, user }) => {
           const expenseDate = expense.date.toDate();
           return expenseDate.getFullYear() === currentYear;
         } catch (error) {
-          console.error("Date conversion failed when calculating yearly support:", error);
+          console.error(
+            "Date conversion failed when calculating yearly support:",
+            error
+          );
           return false;
         }
       })
@@ -335,7 +320,7 @@ const Journal = ({ idolName, user }) => {
   };
 
   // Add new countdown event
-  const handleAddEvent = (e) => {
+  const handleAddEvent = async (e) => {
     e.preventDefault();
     if (!newEvent.title || !newEvent.date) return;
 
@@ -345,14 +330,54 @@ const Journal = ({ idolName, user }) => {
       date: newEvent.date,
     };
 
-    setCountdownEvents([...countdownEvents, newEventObj]);
+    const updatedEvents = [...countdownEvents, newEventObj];
+    setCountdownEvents(updatedEvents);
     setNewEvent({ title: "", date: "" });
     setShowAddEventForm(false);
+
+    // 手動保存到 Firebase
+    if (user) {
+      try {
+        await setDoc(
+          doc(db, "userSettings", user.uid),
+          {
+            startDate: startDate.toISOString(),
+            monthlyBudgets,
+            countdownEvents: updatedEvents,
+            updatedAt: Timestamp.now(),
+          },
+          { merge: true }
+        );
+      } catch (error) {
+        console.error("Failed to save countdown event:", error);
+      }
+    }
   };
 
   // Delete countdown event
-  const handleDeleteEvent = (eventId) => {
-    setCountdownEvents(countdownEvents.filter((event) => event.id !== eventId));
+  const handleDeleteEvent = async (eventId) => {
+    const updatedEvents = countdownEvents.filter(
+      (event) => event.id !== eventId
+    );
+    setCountdownEvents(updatedEvents);
+
+    // 手動保存到 Firebase
+    if (user) {
+      try {
+        await setDoc(
+          doc(db, "userSettings", user.uid),
+          {
+            startDate: startDate.toISOString(),
+            monthlyBudgets,
+            countdownEvents: updatedEvents,
+            updatedAt: Timestamp.now(),
+          },
+          { merge: true }
+        );
+      } catch (error) {
+        console.error("Failed to delete countdown event:", error);
+      }
+    }
   };
 
   return (
@@ -405,6 +430,25 @@ const Journal = ({ idolName, user }) => {
                     now.getMonth() + 1,
                     Number(e.target.value)
                   );
+                }}
+                onBlur={async () => {
+                  // 當輸入框失焦時保存到 Firebase
+                  if (user) {
+                    try {
+                      await setDoc(
+                        doc(db, "userSettings", user.uid),
+                        {
+                          startDate: startDate.toISOString(),
+                          monthlyBudgets,
+                          countdownEvents,
+                          updatedAt: Timestamp.now(),
+                        },
+                        { merge: true }
+                      );
+                    } catch (error) {
+                      console.error("Failed to save budget:", error);
+                    }
+                  }
                 }}
                 placeholder="0"
               />
@@ -651,7 +695,26 @@ const Journal = ({ idolName, user }) => {
                 <button
                   type="button"
                   className="btn-primary"
-                  onClick={() => setShowBudgetManager(false)}
+                  onClick={async () => {
+                    setShowBudgetManager(false);
+                    // 保存預算設定到 Firebase
+                    if (user) {
+                      try {
+                        await setDoc(
+                          doc(db, "userSettings", user.uid),
+                          {
+                            startDate: startDate.toISOString(),
+                            monthlyBudgets,
+                            countdownEvents,
+                            updatedAt: Timestamp.now(),
+                          },
+                          { merge: true }
+                        );
+                      } catch (error) {
+                        console.error("Failed to save budget settings:", error);
+                      }
+                    }
+                  }}
                 >
                   Done
                 </button>
