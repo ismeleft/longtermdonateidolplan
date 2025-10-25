@@ -1,4 +1,3 @@
-/* Kazuki Noda inspired color palette */
 :root {
   --bg-primary: #f8f9fa;
   --bg-secondary: #f1f3f4;
@@ -395,7 +394,7 @@
   }
 
   .main-content {
-    padding: 1.5rem 1.5rem 8rem 1.5rem; /* Increased horizontal padding and added bottom padding */
+    padding: 1.5rem 1rem;
     border-left: none;
     border-right: none;
   }
@@ -548,16 +547,8 @@
   }
 
   .action-button {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 1rem;
-    min-height: auto;
-    background-color: var(--bg-primary);
-    border-top: 1px solid var(--accent-light);
-    border-bottom: none;
-    z-index: 100;
+    padding: 3rem 0;
+    min-height: 120px;
   }
 
   .footer {
@@ -570,7 +561,7 @@
 
 @media (max-width: 480px) {
   .main-content {
-    padding: 1rem 1rem 8rem 1rem; /* Increased horizontal padding */
+    padding: 1rem 0.5rem;
   }
 
   .welcome-greeting-top {

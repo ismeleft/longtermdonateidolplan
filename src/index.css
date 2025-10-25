@@ -343,8 +343,9 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.1);
 }
 
 .card-with-photo img {
@@ -1168,7 +1169,7 @@ body {
 
 .preview-card {
   aspect-ratio: 3/4;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   background: #ffffff;
   border: 2px dashed #e2e8f0;
@@ -1372,7 +1373,7 @@ body {
   }
   .setup-form .letter-6 {
     top: 1rem;
-    left: 85%;
+    left: 80%;
   }
 
   .idol-name-small {
@@ -1643,3 +1644,8 @@ body {
     font-size: 1.5rem;
   }
 }
+
+html {
+  cursor: url('/star.svg'), auto;
+}
+

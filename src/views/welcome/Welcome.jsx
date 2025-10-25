@@ -61,21 +61,23 @@ const Welcome = ({
     const isSmallMobile = windowWidth <= 480;
     const isTinyMobile = windowWidth <= 360;
 
-    let translateX = (index - 1) * 160;
-    let rotate = (index - 1) * 5;
+    let translateX, rotate, translateY;
 
     if (isTinyMobile) {
-      translateX = (index - 1) * 120;
-      rotate = (index - 1) * 3;
+      translateX = (index - 1) * 110;
+      rotate = (index - 1) * 15;
+      translateY = (index === 1) ? 0 : 20;
     } else if (isSmallMobile) {
-      translateX = (index - 1) * 140;
-      rotate = (index - 1) * 4;
-    } else if (isMobile) {
+      translateX = (index - 1) * 130;
+      rotate = (index - 1) * 20;
+      translateY = (index === 1) ? 0 : 30;
+    } else { // Desktop and isMobile
       translateX = (index - 1) * 160;
-      rotate = (index - 1) * 5;
+      rotate = (index - 1) * 25;
+      translateY = (index === 1) ? 0 : 40;
     }
 
-    return `translateX(${translateX}px) rotate(${rotate}deg)`;
+    return `translateX(${translateX}px) translateY(${translateY}px) rotate(${rotate}deg)`;
   };
 
   // 獲取用戶顯示名稱
