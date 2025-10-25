@@ -1,13 +1,13 @@
 :root {
   /* Artist Patronage Theme - Warm & Artistic */
-  --bg-primary: #FAF8F3;        /* Soft cream */
-  --bg-secondary: #F5F1E8;      /* Warm beige */
-  --text-primary: #4A3F35;      /* Deep brown */
-  --text-secondary: #8B7355;    /* Medium brown */
-  --text-muted: #A89080;        /* Light brown */
-  --accent: #B8860B;            /* Dark goldenrod */
-  --accent-light: #E8DCC8;      /* Light tan */
-  --accent-gold: #DAA520;       /* Goldenrod */
+  --bg-primary: #faf8f3; /* Soft cream */
+  --bg-secondary: #f5f1e8; /* Warm beige */
+  --text-primary: #4a3f35; /* Deep brown */
+  --text-secondary: #8b7355; /* Medium brown */
+  --text-muted: #a89080; /* Light brown */
+  --accent: #b8860b; /* Dark goldenrod */
+  --accent-light: #e8dcc8; /* Light tan */
+  --accent-gold: #daa520; /* Goldenrod */
 }
 
 #root {
@@ -173,87 +173,104 @@
 }
 
 /* 副標題 "Patronage Journal" 字母位置 - 更均勻分布 */
-.sub-letter-1 {  /* P */
+.sub-letter-1 {
+  /* P */
   top: 1rem;
   left: 3%;
   transform: rotate(3deg);
 }
-.sub-letter-2 {  /* a */
+.sub-letter-2 {
+  /* a */
   top: 2.5rem;
   left: 9%;
   transform: rotate(-2deg);
 }
-.sub-letter-3 {  /* t */
+.sub-letter-3 {
+  /* t */
   top: 0rem;
   left: 15%;
   transform: rotate(4deg);
 }
-.sub-letter-4 {  /* r */
+.sub-letter-4 {
+  /* r */
   top: 2rem;
   left: 21%;
   transform: rotate(-3deg);
 }
-.sub-letter-5 {  /* o */
+.sub-letter-5 {
+  /* o */
   top: 0.5rem;
   left: 27%;
   transform: rotate(2deg);
 }
-.sub-letter-6 {  /* n */
+.sub-letter-6 {
+  /* n */
   top: 3rem;
   left: 33%;
   transform: rotate(-4deg);
 }
-.sub-letter-7 {  /* a */
+.sub-letter-7 {
+  /* a */
   top: 1rem;
   left: 39%;
   transform: rotate(3deg);
 }
-.sub-letter-8 {  /* g */
+.sub-letter-8 {
+  /* g */
   top: 2.5rem;
   left: 45%;
   transform: rotate(-2deg);
 }
-.sub-letter-9 {  /* e */
+.sub-letter-9 {
+  /* e */
   top: 0rem;
   left: 51%;
   transform: rotate(4deg);
 }
-.sub-letter-10 {  /* space */
+.sub-letter-10 {
+  /* space */
   top: 2rem;
   left: 57%;
   transform: rotate(-3deg);
 }
-.sub-letter-11 {  /* J */
+.sub-letter-11 {
+  /* J */
   top: 0.5rem;
   left: 63%;
   transform: rotate(2deg);
 }
-.sub-letter-12 {  /* o */
+.sub-letter-12 {
+  /* o */
   top: 3rem;
   left: 69%;
   transform: rotate(-4deg);
 }
-.sub-letter-13 {  /* u */
+.sub-letter-13 {
+  /* u */
   top: 1rem;
   left: 75%;
   transform: rotate(3deg);
 }
-.sub-letter-14 {  /* r */
+.sub-letter-14 {
+  /* r */
   top: 2.5rem;
   left: 81%;
   transform: rotate(-2deg);
 }
-.sub-letter-15 {  /* n */
+.sub-letter-15 {
+  /* n */
   top: 0rem;
   left: 87%;
   transform: rotate(4deg);
 }
-.sub-letter-16 {  /* a */
+.sub-letter-16 {
+  /* a */
   top: 2rem;
   left: 91%;
   transform: rotate(-3deg);
 }
-.sub-letter-17 {  /* l */
+.sub-letter-17 {
+  /* l */
   top: 0.5rem;
   left: 95%;
   transform: rotate(2deg);
@@ -614,7 +631,7 @@
 .home-button {
   position: fixed;
   top: 2rem;
-  left: 2rem;
+  right: 2rem; /* Changed from left: 2rem */
   background: transparent;
   border: 1px solid var(--accent-light);
   color: var(--text-secondary);
@@ -670,17 +687,6 @@
 
 /* Home 按鈕手機版樣式 */
 @media (max-width: 768px) {
-  .home-button {
-    top: auto;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.5rem 1rem;
-    font-size: 0.7rem;
-    position: fixed;
-    border-radius: 20px;
-  }
-
   .logout-button {
     top: 1rem;
     right: 1rem;
@@ -712,6 +718,13 @@
 .main-app-content {
   min-height: 100vh;
   transition: margin-left 0.3s ease;
+}
+
+/* 手機版調整主內容區的 padding-top，為固定定位的按鈕留出空間 */
+@media (max-width: 768px) {
+  .main-app-content {
+    padding-top: 1rem; /* 根據 mobile-menu-btn 和 home-button 的高度和位置調整 */
+  }
 }
 
 /* 桌面版：當有側邊欄時，主內容區左移 */
@@ -763,9 +776,17 @@
 @media (max-width: 767px) {
   .main-app-content.with-sidebar .home-button {
     left: auto;
-    right: 1rem;
+    right: 1rem; /* Adjusted from 1rem to 2rem */
     top: 1rem;
     transform: none;
+    width: 2.5rem; /* Fixed width */
+    height: 2.5rem; /* Fixed height */
+    border-radius: 50%; /* Circular shape */
+    font-size: 1rem; /* Larger font for icon/single letter */
+    padding: 0; /* Remove padding */
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .main-app-content.with-sidebar .logout-button {

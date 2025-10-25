@@ -9,7 +9,17 @@ import Auth from "./views/auth/Auth";
 import Loading from "./components/Loading";
 import IdolSidebar from "./components/IdolSidebar/IdolSidebar";
 import { db, auth } from "./firebase";
-import { doc, getDoc, collection, query, where, getDocs, deleteDoc, addDoc, Timestamp } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+  addDoc,
+  Timestamp,
+} from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
 // 主應用組件
@@ -66,7 +76,11 @@ const App = () => {
       const oldPhotos = userSettings.photos || [];
       const oldStartDate = userSettings.startDate; // 也遷移 startDate
 
-      console.log("📋 userSettings 資料:", { oldIdolName, oldPhotos, oldStartDate });
+      console.log("📋 userSettings 資料:", {
+        oldIdolName,
+        oldPhotos,
+        oldStartDate,
+      });
 
       if (!oldIdolName) {
         console.log("⚠️ 沒有舊的 idolName，無需遷移");
@@ -142,7 +156,7 @@ const App = () => {
       }
 
       // 2. 將所有 idol 轉換為陣列
-      const allIdols = querySnapshot.docs.map(doc => ({
+      const allIdols = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -158,7 +172,7 @@ const App = () => {
       console.log("💾 localStorage中的偶像ID:", savedIdolId);
 
       if (savedIdolId) {
-        currentIdol = allIdols.find(idol => idol.id === savedIdolId);
+        currentIdol = allIdols.find((idol) => idol.id === savedIdolId);
         if (currentIdol) {
           console.log("✅ 使用 localStorage 中的 idol:", currentIdol.idolName);
         } else {
@@ -176,7 +190,6 @@ const App = () => {
       // 4. 設定當前 idol
       setUserData(currentIdol);
       console.log("🎯 當前偶像已設定:", currentIdol.idolName);
-
     } catch (error) {
       console.error("❌ 加載偶像數據失敗:", error);
       setIdolList([]);
@@ -230,10 +243,8 @@ const App = () => {
   const handleUserDataUpdate = (updatedData) => {
     setUserData(updatedData);
     // 同步更新 idolList 中對應的 idol
-    setIdolList(prevList =>
-      prevList.map(idol =>
-        idol.id === updatedData.id ? updatedData : idol
-      )
+    setIdolList((prevList) =>
+      prevList.map((idol) => (idol.id === updatedData.id ? updatedData : idol))
     );
   };
 
@@ -242,7 +253,7 @@ const App = () => {
     console.log("🔄 切換到 idol:", idolId);
 
     // 從 idolList 中找到對應的 idol
-    const targetIdol = idolList.find(idol => idol.id === idolId);
+    const targetIdol = idolList.find((idol) => idol.id === idolId);
 
     if (targetIdol) {
       // 更新當前 idol
@@ -270,7 +281,7 @@ const App = () => {
       console.log("🗑️ 準備刪除 idol:", idolId);
 
       // 找到要刪除的 idol
-      const targetIdol = idolList.find(idol => idol.id === idolId);
+      const targetIdol = idolList.find((idol) => idol.id === idolId);
       if (!targetIdol) {
         console.error("❌ 找不到要刪除的 idol");
         return;
@@ -281,7 +292,7 @@ const App = () => {
       console.log("✅ 已從 Firebase 刪除 idol:", targetIdol.idolName);
 
       // 更新 idolList（移除被刪除的 idol）
-      const newIdolList = idolList.filter(idol => idol.id !== idolId);
+      const newIdolList = idolList.filter((idol) => idol.id !== idolId);
       setIdolList(newIdolList);
 
       // 如果刪除的是當前 idol，需要切換到另一個 idol
@@ -316,7 +327,6 @@ const App = () => {
       await Promise.all(deletePromises);
       console.log("✅ 已刪除相關的", expensesSnapshot.size, "筆支出記錄");
       */
-
     } catch (error) {
       console.error("❌ 刪除 idol 失敗:", error);
       alert("Failed to remove artist, please try again later");
@@ -348,9 +358,13 @@ const App = () => {
       )}
 
       {/* 主內容區 */}
-      <div className={`main-app-content ${userData && page !== "setup" ? "with-sidebar" : ""}`}>
+      <div
+        className={`main-app-content ${
+          userData && page !== "setup" ? "with-sidebar" : ""
+        }`}
+      >
         {/* 手機版漢堡選單按鈕 */}
-        {userData && page !== "setup" && (
+        {userData && page !== "setup" && !sidebarOpen && (
           <button
             className="mobile-menu-btn"
             onClick={() => setSidebarOpen(true)}
@@ -367,7 +381,20 @@ const App = () => {
             onClick={handleBackToWelcome}
             aria-label="Back to Home"
           >
-            Home
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
           </button>
         )}
 
@@ -392,12 +419,11 @@ const App = () => {
               onUserDataUpdate={handleUserDataUpdate}
             />
           )}
-          {page === "setup" && <Setup onComplete={handleSetupComplete} user={user} />}
+          {page === "setup" && (
+            <Setup onComplete={handleSetupComplete} user={user} />
+          )}
           {page === "journal" && (
-            <Journal
-              idolName={userData?.idolName}
-              user={user}
-            />
+            <Journal idolName={userData?.idolName} user={user} />
           )}
         </AnimatePresence>
       </div>

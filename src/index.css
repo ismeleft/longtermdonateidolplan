@@ -795,7 +795,7 @@ body {
 /* 響應式設計 */
 @media (max-width: 768px) {
   .accounting-app {
-    padding: 1rem;
+    padding: 5rem 1rem;
   }
 
   .budget-grid {
@@ -864,7 +864,7 @@ body {
 
 @media (max-width: 480px) {
   .accounting-app {
-    padding: 0.75rem;
+    padding: 5rem 0.75rem;
   }
 
   .stats-grid {
