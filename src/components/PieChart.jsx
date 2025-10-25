@@ -1,11 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
-const PieChart = ({ data, size = 200 }) => {
+const PieChart = ({ data, size: providedSize }) => {
+  const containerRef = useRef(null);
+  const [size, setSize] = useState(providedSize || 200);
+
+  // 響應式調整 size
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const updateSize = () => {
+      const containerWidth = containerRef.current.offsetWidth;
+      const windowWidth = window.innerWidth;
+
+      // 根據螢幕寬度設置不同的最大尺寸
+      let maxSize;
+      if (windowWidth <= 480) {
+        // 小手機：最大 150px
+        maxSize = Math.min(containerWidth - 20, 150);
+      } else if (windowWidth <= 768) {
+        // 平板/大手機：最大 170px
+        maxSize = Math.min(containerWidth - 40, 170);
+      } else {
+        // 桌面：200px
+        maxSize = 200;
+      }
+
+      setSize(providedSize || maxSize);
+    };
+
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, [providedSize]);
+
   const total = data.reduce((sum, item) => sum + item.value, 0);
-  
+
   if (total === 0) {
     return (
-      <div className="pie-chart-container" style={{ width: size, height: size }}>
+      <div ref={containerRef} className="pie-chart-container" style={{ width: '100%', maxWidth: size }}>
         <div className="empty-chart">
           <span>No data yet</span>
         </div>
@@ -51,9 +83,15 @@ const PieChart = ({ data, size = 200 }) => {
   });
 
   return (
-    <div className="pie-chart-container">
-      <div className="chart-wrapper">
-        <svg width={size} height={size} className="pie-chart">
+    <div ref={containerRef} className="pie-chart-container" style={{ width: '100%' }}>
+      <div className="chart-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+        <svg
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+          className="pie-chart"
+          style={{ maxWidth: '100%', height: 'auto', display: 'block' }}
+        >
           {segments.length === 1 ? (
             <circle
               cx={size / 2}

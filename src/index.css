@@ -851,14 +851,33 @@ body {
 
   .chart-section {
     margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    overflow-x: hidden;
   }
 
   .chart-wrapper {
     gap: 1rem;
   }
 
+  .pie-chart-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .pie-chart {
+    max-width: 170px !important;
+    max-height: 170px !important;
+    width: 170px !important;
+    height: auto !important;
+  }
+
+  .chart-wrapper {
+    width: 100%;
+  }
+
   .chart-legend {
     max-width: none;
+    width: 100%;
   }
 }
 
@@ -885,8 +904,45 @@ body {
   }
 
   .pie-chart {
-    width: 160px !important;
-    height: 160px !important;
+    max-width: 150px !important;
+    max-height: 150px !important;
+    width: 150px !important;
+    height: auto !important;
+  }
+
+  .pie-chart-container {
+    padding: 0;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .chart-wrapper {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .chart-section {
+    padding: 1rem;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .chart-legend {
+    width: 100%;
+    font-size: 0.875rem;
+  }
+
+  .legend-item {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+  }
+
+  .legend-label {
+    font-size: 0.875rem;
+  }
+
+  .legend-value {
+    font-size: 0.8rem;
   }
 
   .budget-grid {
