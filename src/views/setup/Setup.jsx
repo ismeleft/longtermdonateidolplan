@@ -1,11 +1,15 @@
 import React, { useState, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { db } from "../../firebase";
-import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { collection, addDoc, Timestamp, doc, setDoc } from "firebase/firestore";
 
-const Setup = ({ onComplete }) => {
+const Setup = ({ onComplete, user }) => {
   const [step, setStep] = useState(1);
   const [idolName, setIdolName] = useState("");
+  const [meetingDate, setMeetingDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -100,22 +104,33 @@ const Setup = ({ onComplete }) => {
   };
 
   const handleNext = async () => {
-    if (step === 1 && idolName) {
+    if (step === 1 && idolName && meetingDate) {
       setStep(2);
     } else if (step === 2) {
       setLoading(true);
       setError("");
 
       try {
+        // 1. 保存偶像資料
         const idolDoc = await addDoc(collection(db, "idols"), {
           idolName,
           photos, // Now storing Cloudinary URLs (can be empty array)
+          userId: user.uid, // 加入用戶 ID 進行隔離
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
         });
 
+        // 2. 保存用戶設定（包含相遇日期）
+        const userSettings = {
+          startDate: new Date(meetingDate).toISOString(),
+          monthlyBudgets: {},
+          countdownEvents: [],
+          updatedAt: Timestamp.now()
+        };
+        await setDoc(doc(db, "userSettings", user.uid), userSettings);
+
         localStorage.setItem("current_idol_id", idolDoc.id);
-        onComplete({ idolName, photos, id: idolDoc.id });
+        onComplete({ idolName, photos, id: idolDoc.id, userId: user.uid });
       } catch (error) {
         console.error("Failed to save idol data:", error);
         setError("Save failed, please try again later");
@@ -155,7 +170,7 @@ const Setup = ({ onComplete }) => {
                   <span className="letter letter-4">u</span>
                   <span className="letter letter-5">p</span>
                 </div>
-                <div className="subtitle">Enter your idol name</div>
+                <div className="subtitle">Enter your idol info</div>
               </div>
               <input
                 type="text"
@@ -164,6 +179,21 @@ const Setup = ({ onComplete }) => {
                 placeholder="Enter your idol's name..."
                 className="setup-input"
               />
+              <div className="meeting-date-section">
+                <label htmlFor="meetingDate" className="date-label">
+                  與 {idolName || '偶像'} 相遇的日子：
+                </label>
+                <input
+                  id="meetingDate"
+                  type="date"
+                  value={meetingDate}
+                  onChange={(e) => setMeetingDate(e.target.value)}
+                  className="setup-input date-input"
+                />
+                <div className="date-hint">
+                  記錄下這個特別的日子 ✨
+                </div>
+              </div>
             </div>
           ) : (
             <div key="step2" className="setup-form">
@@ -281,7 +311,7 @@ const Setup = ({ onComplete }) => {
             <button
               className="setup-button"
               onClick={handleNext}
-              disabled={(step === 1 && !idolName) || loading}
+              disabled={(step === 1 && (!idolName || !meetingDate)) || loading}
             >
               {loading ? "載入中..." : "下一步"}
             </button>

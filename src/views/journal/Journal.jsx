@@ -12,27 +12,18 @@ import {
   doc,
   updateDoc,
   Timestamp,
+  setDoc,
+  getDoc,
 } from "firebase/firestore";
 
-const Journal = ({ idolName }) => {
+const Journal = ({ idolName, user }) => {
   const [expenses, setExpenses] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [startDate, setStartDate] = useState(() => {
-    const savedDate = localStorage.getItem("idol_start_date");
-    return savedDate ? new Date(savedDate) : new Date();
-  });
-  const [monthlyBudget, setMonthlyBudget] = useState(() => {
-    const savedBudget = localStorage.getItem("monthly_budget");
-    return savedBudget ? Number(savedBudget) : 0;
-  });
-  const [yearlyBudget, setYearlyBudget] = useState(() => {
-    const savedBudget = localStorage.getItem("yearly_budget");
-    return savedBudget ? Number(savedBudget) : 0;
-  });
-  const [countdownEvents, setCountdownEvents] = useState(() => {
-    const savedEvents = localStorage.getItem("countdown_events");
-    return savedEvents ? JSON.parse(savedEvents) : [];
-  });
+  const [startDate, setStartDate] = useState(new Date());
+  const [monthlyBudgets, setMonthlyBudgets] = useState({});
+  const [showBudgetManager, setShowBudgetManager] = useState(false);
+  const [countdownEvents, setCountdownEvents] = useState([]);
+  const [userSettings, setUserSettings] = useState(null);
   const [showAddEventForm, setShowAddEventForm] = useState(false);
   const [newEvent, setNewEvent] = useState({
     title: "",
@@ -46,25 +37,75 @@ const Journal = ({ idolName }) => {
   });
   const [errors, setErrors] = useState({});
 
-  // 保存設置到 localStorage
+  // 從 Firebase 加載用戶設定
   useEffect(() => {
-    localStorage.setItem("idol_start_date", startDate.toISOString());
-    localStorage.setItem("monthly_budget", monthlyBudget.toString());
-    localStorage.setItem("yearly_budget", yearlyBudget.toString());
-    localStorage.setItem("countdown_events", JSON.stringify(countdownEvents));
-  }, [startDate, monthlyBudget, yearlyBudget, countdownEvents]);
+    if (user) {
+      loadUserSettings();
+    }
+  }, [user]);
 
   // 從 Firebase 加載數據
   useEffect(() => {
-    if (idolName) {
+    if (idolName && user) {
       loadExpenses();
     }
-  }, [idolName]);
+  }, [idolName, user]);
+
+  // 保存設定到 Firebase
+  useEffect(() => {
+    if (user && userSettings) {
+      saveUserSettings();
+    }
+  }, [startDate, monthlyBudgets, countdownEvents]);
+
+  const loadUserSettings = async () => {
+    try {
+      const settingsDoc = await getDoc(doc(db, "userSettings", user.uid));
+      if (settingsDoc.exists()) {
+        const settings = settingsDoc.data();
+        setUserSettings(settings);
+        setStartDate(settings.startDate ? new Date(settings.startDate) : new Date());
+        setMonthlyBudgets(settings.monthlyBudgets || {});
+        setCountdownEvents(settings.countdownEvents || []);
+      } else {
+        // 如果沒有設定文檔，創建一個預設的
+        const defaultSettings = {
+          startDate: new Date().toISOString(),
+          monthlyBudgets: {},
+          countdownEvents: [],
+          updatedAt: Timestamp.now()
+        };
+        await setDoc(doc(db, "userSettings", user.uid), defaultSettings);
+        setUserSettings(defaultSettings);
+      }
+    } catch (error) {
+      console.error("加載用戶設定失敗:", error);
+    }
+  };
+
+  const saveUserSettings = async () => {
+    try {
+      const settings = {
+        startDate: startDate.toISOString(),
+        monthlyBudgets,
+        countdownEvents,
+        updatedAt: Timestamp.now()
+      };
+      await setDoc(doc(db, "userSettings", user.uid), settings);
+      setUserSettings(settings);
+    } catch (error) {
+      console.error("保存用戶設定失敗:", error);
+    }
+  };
 
   const loadExpenses = async () => {
     try {
       const expensesRef = collection(db, "expenses");
-      const q = query(expensesRef, where("idolName", "==", idolName));
+      const q = query(
+        expensesRef, 
+        where("idolName", "==", idolName),
+        where("userId", "==", user.uid)
+      );
       const querySnapshot = await getDocs(q);
 
       const loadedExpenses = querySnapshot.docs.map((doc) => ({
@@ -128,9 +169,35 @@ const Journal = ({ idolName }) => {
       .reduce((total, expense) => total + Number(expense.amount), 0);
   };
 
+  // 獲取特定月份的預算
+  const getMonthlyBudget = (year, month) => {
+    const key = `${year}-${String(month).padStart(2, '0')}`;
+    return monthlyBudgets[key] || 0;
+  };
+
+  // 設定特定月份的預算
+  const setMonthlyBudget = (year, month, amount) => {
+    const key = `${year}-${String(month).padStart(2, '0')}`;
+    setMonthlyBudgets(prev => ({
+      ...prev,
+      [key]: amount
+    }));
+  };
+
+  // 計算年度總預算
+  const calculateYearlyBudget = () => {
+    const currentYear = new Date().getFullYear();
+    let total = 0;
+    for (let month = 1; month <= 12; month++) {
+      total += getMonthlyBudget(currentYear, month);
+    }
+    return total;
+  };
+
   // 計算年度剩餘預算
   const calculateRemainingBudget = () => {
     const yearlyExpenses = calculateYearlyExpenses();
+    const yearlyBudget = calculateYearlyBudget();
     return yearlyBudget - yearlyExpenses;
   };
 
@@ -176,6 +243,7 @@ const Journal = ({ idolName }) => {
         category: newExpense.category,
         description: newExpense.description,
         idolName,
+        userId: user.uid, // 加入用戶 ID
         date: now,
         createdAt: now,
       };
@@ -307,7 +375,7 @@ const Journal = ({ idolName }) => {
         </div>
         <div className="stat-item">
           <div className="stat-label">年度預算</div>
-          <div className="stat-value">${yearlyBudget}</div>
+          <div className="stat-value">${calculateYearlyBudget()}</div>
         </div>
         <div className="stat-item">
           <div className="stat-label">剩餘預算</div>
@@ -315,33 +383,32 @@ const Journal = ({ idolName }) => {
         </div>
       </div>
 
+
       {/* 主要內容區 */}
       <div className="main-content-grid">
         <div className="budget-section">
           <h3>預算管理</h3>
           <div className="budget-controls">
             <div className="input-group">
-              <label>月定期存款：</label>
+              <label>當月預算：</label>
               <input
                 type="number"
-                value={monthlyBudget}
+                value={getMonthlyBudget(new Date().getFullYear(), new Date().getMonth() + 1)}
                 onChange={(e) => {
-                  const value = Number(e.target.value);
-                  setMonthlyBudget(value);
-                  setYearlyBudget(value * 12);
+                  const now = new Date();
+                  setMonthlyBudget(now.getFullYear(), now.getMonth() + 1, Number(e.target.value));
                 }}
                 placeholder="0"
               />
             </div>
-            <div className="input-group">
-              <label>開始日期：</label>
-              <input
-                type="date"
-                value={startDate.toISOString().split("T")[0]}
-                onChange={(e) => setStartDate(new Date(e.target.value))}
-              />
-            </div>
           </div>
+          <button 
+            className="btn-secondary"
+            onClick={() => setShowBudgetManager(true)}
+            style={{ marginTop: '1rem', width: '100%' }}
+          >
+            管理所有月份預算
+          </button>
         </div>
 
         {/* 倒數事件 */}
@@ -524,6 +591,56 @@ const Journal = ({ idolName }) => {
                   </button>
                 </div>
               </form>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 月份預算管理彈窗 */}
+      <AnimatePresence>
+        {showBudgetManager && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="modal-overlay"
+          >
+            <div className="modal-content budget-modal">
+              <h3>月份預算管理</h3>
+              <div className="budget-grid">
+                {Array.from({ length: 12 }, (_, index) => {
+                  const month = index + 1;
+                  const year = new Date().getFullYear();
+                  const monthName = new Date(year, index).toLocaleDateString('zh-TW', { month: 'long' });
+                  
+                  return (
+                    <div key={month} className="budget-month-item">
+                      <label>{monthName}</label>
+                      <input
+                        type="number"
+                        value={getMonthlyBudget(year, month)}
+                        onChange={(e) => setMonthlyBudget(year, month, Number(e.target.value))}
+                        placeholder="0"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="budget-summary">
+                <div className="summary-item">
+                  <span>年度總預算：</span>
+                  <span>${calculateYearlyBudget()}</span>
+                </div>
+              </div>
+              <div className="form-buttons">
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={() => setShowBudgetManager(false)}
+                >
+                  完成
+                </button>
+              </div>
             </div>
           </motion.div>
         )}

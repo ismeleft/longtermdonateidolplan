@@ -47,6 +47,36 @@
   box-sizing: border-box;
 }
 
+/* 頂部歡迎語樣式 */
+.welcome-greeting-top {
+  position: fixed;
+  top: 5.5rem;
+  right: 2rem;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.greeting-text-small {
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--text-secondary);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.days-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--accent-light);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 400;
+}
+
 .large-text {
   position: relative;
   padding: 1rem 0;
@@ -60,7 +90,7 @@
 .artistic-title-main {
   position: relative;
   height: 150px;
-  margin-bottom: 2rem;
+  margin-bottom: 0rem;
 }
 
 .artistic-title-sub {
@@ -215,11 +245,11 @@
 
 .idol-name-main {
   position: absolute;
-  bottom: -4rem;
+  bottom: -1rem;
   right: 0%;
-  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-size: 2rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #4755693d;
   letter-spacing: 0.1em;
   font-family: "Helvetica Neue", Arial, sans-serif;
   transform: rotate(-2deg);
@@ -368,6 +398,20 @@
     padding: 1.5rem 1rem;
     border-left: none;
     border-right: none;
+  }
+
+  .welcome-greeting-top {
+    top: 3rem;
+    right: 1rem;
+  }
+
+  .greeting-text-small {
+    font-size: 0.7rem;
+  }
+
+  .days-count {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
   }
 
   .large-text {
@@ -521,6 +565,20 @@
     padding: 1rem 0.5rem;
   }
 
+  .welcome-greeting-top {
+    top: 2.5rem;
+    right: 0.75rem;
+  }
+
+  .greeting-text-small {
+    font-size: 0.65rem;
+  }
+
+  .days-count {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.35rem;
+  }
+
   .large-text .text-part:first-child,
   .large-text .text-part:last-child {
     transform: translateX(0.5rem);
@@ -565,11 +623,51 @@
   border-color: var(--accent);
 }
 
+/* 登出按鈕樣式 */
+.logout-button {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  background: transparent;
+  border: 1px solid var(--accent-light);
+  color: var(--text-secondary);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  backdrop-filter: blur(10px);
+  background-color: rgba(248, 249, 250, 0.8);
+  z-index: 1000;
+  border-radius: 0;
+}
+
+.logout-button:hover {
+  background-color: var(--accent-light);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  border-color: var(--accent);
+}
+
 /* Home 按鈕手機版樣式 */
 @media (max-width: 768px) {
   .home-button {
+    top: auto;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    position: fixed;
+    border-radius: 20px;
+  }
+
+  .logout-button {
     top: 1rem;
-    left: 1rem;
+    right: 1rem;
     padding: 0.5rem 1rem;
     font-size: 0.7rem;
   }
@@ -577,8 +675,14 @@
 
 @media (max-width: 480px) {
   .home-button {
+    bottom: 1.5rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.65rem;
+  }
+
+  .logout-button {
     top: 0.75rem;
-    left: 0.75rem;
+    right: 0.75rem;
     padding: 0.4rem 0.8rem;
     font-size: 0.65rem;
   }
