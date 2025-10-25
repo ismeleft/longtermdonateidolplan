@@ -54,16 +54,27 @@ const PieChart = ({ data, size = 200 }) => {
     <div className="pie-chart-container">
       <div className="chart-wrapper">
         <svg width={size} height={size} className="pie-chart">
-          {segments.map((segment, index) => (
-            <path
-              key={index}
-              d={segment.pathData}
-              fill={segment.color}
+          {segments.length === 1 ? (
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={size / 2 - 10}
+              fill={segments[0].color}
               stroke="#ffffff"
               strokeWidth="2"
-              className="chart-segment"
             />
-          ))}
+          ) : (
+            segments.map((segment, index) => (
+              <path
+                key={index}
+                d={segment.pathData}
+                fill={segment.color}
+                stroke="#ffffff"
+                strokeWidth="2"
+                className="chart-segment"
+              />
+            ))
+          )}
         </svg>
         
         <div className="chart-legend">

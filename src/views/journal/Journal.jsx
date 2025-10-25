@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+// eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from "framer-motion";
 import { db } from "../../firebase";
 import PieChart from "../../components/PieChart";
@@ -37,34 +38,16 @@ const Journal = ({ idolName, user }) => {
   });
   const [errors, setErrors] = useState({});
 
-  // 從 Firebase 加載用戶設定
-  useEffect(() => {
-    if (user) {
-      loadUserSettings();
-    }
-  }, [user]);
-
-  // 從 Firebase 加載數據
-  useEffect(() => {
-    if (idolName && user) {
-      loadExpenses();
-    }
-  }, [idolName, user]);
-
-  // 保存設定到 Firebase
-  useEffect(() => {
-    if (user && userSettings) {
-      saveUserSettings();
-    }
-  }, [startDate, monthlyBudgets, countdownEvents]);
-
-  const loadUserSettings = async () => {
+  const loadUserSettings = useCallback(async () => {
+    if (!user) return;
     try {
       const settingsDoc = await getDoc(doc(db, "userSettings", user.uid));
       if (settingsDoc.exists()) {
         const settings = settingsDoc.data();
         setUserSettings(settings);
-        setStartDate(settings.startDate ? new Date(settings.startDate) : new Date());
+        setStartDate(
+          settings.startDate ? new Date(settings.startDate) : new Date()
+        );
         setMonthlyBudgets(settings.monthlyBudgets || {});
         setCountdownEvents(settings.countdownEvents || []);
       } else {
@@ -73,7 +56,7 @@ const Journal = ({ idolName, user }) => {
           startDate: new Date().toISOString(),
           monthlyBudgets: {},
           countdownEvents: [],
-          updatedAt: Timestamp.now()
+          updatedAt: Timestamp.now(),
         };
         await setDoc(doc(db, "userSettings", user.uid), defaultSettings);
         setUserSettings(defaultSettings);
@@ -81,28 +64,30 @@ const Journal = ({ idolName, user }) => {
     } catch (error) {
       console.error("加載用戶設定失敗:", error);
     }
-  };
+  }, [user]);
 
-  const saveUserSettings = async () => {
+  const saveUserSettings = useCallback(async () => {
+    if (!user) return;
     try {
       const settings = {
         startDate: startDate.toISOString(),
         monthlyBudgets,
         countdownEvents,
-        updatedAt: Timestamp.now()
+        updatedAt: Timestamp.now(),
       };
       await setDoc(doc(db, "userSettings", user.uid), settings);
       setUserSettings(settings);
     } catch (error) {
       console.error("保存用戶設定失敗:", error);
     }
-  };
+  }, [user, startDate, monthlyBudgets, countdownEvents]);
 
-  const loadExpenses = async () => {
+  const loadExpenses = useCallback(async () => {
+    if (!user || !idolName) return;
     try {
       const expensesRef = collection(db, "expenses");
       const q = query(
-        expensesRef, 
+        expensesRef,
         where("idolName", "==", idolName),
         where("userId", "==", user.uid)
       );
@@ -119,7 +104,24 @@ const Journal = ({ idolName, user }) => {
       console.error("加載支出記錄失敗:", error);
       alert("加載支出記錄失敗，請稍後再試");
     }
-  };
+  }, [user, idolName]);
+
+  // 從 Firebase 加載用戶設定
+  useEffect(() => {
+    loadUserSettings();
+  }, [loadUserSettings]);
+
+  // 從 Firebase 加載數據
+  useEffect(() => {
+    loadExpenses();
+  }, [loadExpenses]);
+
+  // 保存設定到 Firebase
+  useEffect(() => {
+    if (user && userSettings) {
+      saveUserSettings();
+    }
+  }, [user, userSettings, saveUserSettings]);
 
   // 驗證表單
   const validateForm = () => {
@@ -171,16 +173,16 @@ const Journal = ({ idolName, user }) => {
 
   // 獲取特定月份的預算
   const getMonthlyBudget = (year, month) => {
-    const key = `${year}-${String(month).padStart(2, '0')}`;
+    const key = `${year}-${String(month).padStart(2, "0")}`;
     return monthlyBudgets[key] || 0;
   };
 
   // 設定特定月份的預算
   const setMonthlyBudget = (year, month, amount) => {
-    const key = `${year}-${String(month).padStart(2, '0')}`;
-    setMonthlyBudgets(prev => ({
+    const key = `${year}-${String(month).padStart(2, "0")}`;
+    setMonthlyBudgets((prev) => ({
       ...prev,
-      [key]: amount
+      [key]: amount,
     }));
   };
 
@@ -215,7 +217,7 @@ const Journal = ({ idolName, user }) => {
     const categoryExpenses = calculateCategoryExpenses();
     return Object.entries(categoryExpenses).map(([category, amount]) => ({
       label: category,
-      value: amount
+      value: amount,
     }));
   };
 
@@ -383,7 +385,6 @@ const Journal = ({ idolName, user }) => {
         </div>
       </div>
 
-
       {/* 主要內容區 */}
       <div className="main-content-grid">
         <div className="budget-section">
@@ -393,19 +394,26 @@ const Journal = ({ idolName, user }) => {
               <label>當月預算：</label>
               <input
                 type="number"
-                value={getMonthlyBudget(new Date().getFullYear(), new Date().getMonth() + 1)}
+                value={getMonthlyBudget(
+                  new Date().getFullYear(),
+                  new Date().getMonth() + 1
+                )}
                 onChange={(e) => {
                   const now = new Date();
-                  setMonthlyBudget(now.getFullYear(), now.getMonth() + 1, Number(e.target.value));
+                  setMonthlyBudget(
+                    now.getFullYear(),
+                    now.getMonth() + 1,
+                    Number(e.target.value)
+                  );
                 }}
                 placeholder="0"
               />
             </div>
           </div>
-          <button 
+          <button
             className="btn-secondary"
             onClick={() => setShowBudgetManager(true)}
-            style={{ marginTop: '1rem', width: '100%' }}
+            style={{ marginTop: "1rem", width: "100%" }}
           >
             管理所有月份預算
           </button>
@@ -445,7 +453,7 @@ const Journal = ({ idolName, user }) => {
 
       {/* 快速操作按鈕 */}
       <div className="action-buttons">
-        <button 
+        <button
           className="btn-primary"
           onClick={() => {
             setShowAddForm(true);
@@ -455,7 +463,7 @@ const Journal = ({ idolName, user }) => {
         >
           記一筆
         </button>
-        <button 
+        <button
           className="btn-secondary"
           onClick={() => setShowAddEventForm(true)}
         >
@@ -578,7 +586,9 @@ const Journal = ({ idolName, user }) => {
                   />
                 </div>
                 <div className="form-buttons">
-                  <button type="submit" className="btn-primary">保存</button>
+                  <button type="submit" className="btn-primary">
+                    保存
+                  </button>
                   <button
                     type="button"
                     className="btn-secondary"
@@ -611,15 +621,20 @@ const Journal = ({ idolName, user }) => {
                 {Array.from({ length: 12 }, (_, index) => {
                   const month = index + 1;
                   const year = new Date().getFullYear();
-                  const monthName = new Date(year, index).toLocaleDateString('zh-TW', { month: 'long' });
-                  
+                  const monthName = new Date(year, index).toLocaleDateString(
+                    "zh-TW",
+                    { month: "long" }
+                  );
+
                   return (
                     <div key={month} className="budget-month-item">
                       <label>{monthName}</label>
                       <input
                         type="number"
                         value={getMonthlyBudget(year, month)}
-                        onChange={(e) => setMonthlyBudget(year, month, Number(e.target.value))}
+                        onChange={(e) =>
+                          setMonthlyBudget(year, month, Number(e.target.value))
+                        }
                         placeholder="0"
                       />
                     </div>
@@ -667,8 +682,12 @@ const Journal = ({ idolName, user }) => {
                     <span className="expense-category">{expense.category}</span>
                   </div>
                   <div className="expense-details">
-                    <span className="expense-description">{expense.description}</span>
-                    <span className="expense-date">{formatDate(expense.date)}</span>
+                    <span className="expense-description">
+                      {expense.description}
+                    </span>
+                    <span className="expense-date">
+                      {formatDate(expense.date)}
+                    </span>
                   </div>
                 </div>
                 <div className="expense-actions">
