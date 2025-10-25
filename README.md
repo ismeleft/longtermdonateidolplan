@@ -4,13 +4,13 @@
 當然如果是簡單的樣式修改，也許人工還是比較快。
 
 ## 技術選用
-
+*   **AI:** Cursor IDE + Claude Code
 *   **Frontend Framework:** React
 *   **Build Tool:** Vite
 *   **Linting:** ESLint
 *   **Backend/Database:** Firebase 
 *   **Animation:** Framer Motion
-*   **Image/Video Management:** Cloudinary
+*   **Image Management:** Cloudinary
 *   **MCP:** Chrome devtool mcp
 
 ## 特色功能
