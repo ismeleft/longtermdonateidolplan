@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { db } from "../../firebase";
-import { collection, addDoc, Timestamp, doc, setDoc } from "firebase/firestore";
+import { collection, addDoc, Timestamp, doc, setDoc, query, where, getDocs } from "firebase/firestore";
 
 const Setup = ({ onComplete, user }) => {
   const [step, setStep] = useState(1);
