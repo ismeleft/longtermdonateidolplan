@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 // eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from "framer-motion";
 import { db } from "../../firebase";
@@ -36,6 +36,10 @@ const Journal = ({ idolName, user }) => {
     description: "",
   });
   const [errors, setErrors] = useState({});
+
+  // 防止頻繁寫入的 ref
+  const isSavingRef = useRef(false);
+  const saveTimeoutRef = useRef(null);
 
   const loadUserSettings = useCallback(async () => {
     if (!user) return;
@@ -97,13 +101,47 @@ const Journal = ({ idolName, user }) => {
     loadExpenses();
   }, [loadExpenses]);
 
-  // ⚠️ 移除自動保存的 useEffect，改為在需要時手動呼叫 saveUserSettings()
-  // 原本的 useEffect 會造成無限循環：userSettings 變化 → 保存 → 更新 state → 再次觸發...
-  // useEffect(() => {
-  //   if (user && userSettings) {
-  //     saveUserSettings();
-  //   }
-  // }, [user, userSettings, saveUserSettings]);
+  // 統一的保存用戶設定函數（帶防抖和保存鎖定）
+  const saveUserSettings = useCallback(async () => {
+    // 如果正在保存，跳過
+    if (isSavingRef.current || !user) return;
+
+    // 清除之前的定時器
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // 設置新的定時器（防抖：1秒內只保存一次）
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        isSavingRef.current = true;
+        await setDoc(
+          doc(db, "userSettings", user.uid),
+          {
+            startDate: startDate.toISOString(),
+            monthlyBudgets,
+            countdownEvents,
+            updatedAt: Timestamp.now(),
+          },
+          { merge: true }
+        );
+        console.log("✅ 用戶設定已保存");
+      } catch (error) {
+        console.error("❌ 保存用戶設定失敗:", error);
+      } finally {
+        isSavingRef.current = false;
+      }
+    }, 1000); // 1秒防抖
+  }, [user, startDate, monthlyBudgets, countdownEvents]);
+
+  // 清理定時器
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Validate form
   const validateForm = () => {
@@ -320,7 +358,7 @@ const Journal = ({ idolName, user }) => {
   };
 
   // Add new countdown event
-  const handleAddEvent = async (e) => {
+  const handleAddEvent = (e) => {
     e.preventDefault();
     if (!newEvent.title || !newEvent.date) return;
 
@@ -335,49 +373,19 @@ const Journal = ({ idolName, user }) => {
     setNewEvent({ title: "", date: "" });
     setShowAddEventForm(false);
 
-    // 手動保存到 Firebase
-    if (user) {
-      try {
-        await setDoc(
-          doc(db, "userSettings", user.uid),
-          {
-            startDate: startDate.toISOString(),
-            monthlyBudgets,
-            countdownEvents: updatedEvents,
-            updatedAt: Timestamp.now(),
-          },
-          { merge: true }
-        );
-      } catch (error) {
-        console.error("Failed to save countdown event:", error);
-      }
-    }
+    // 使用防抖保存
+    saveUserSettings();
   };
 
   // Delete countdown event
-  const handleDeleteEvent = async (eventId) => {
+  const handleDeleteEvent = (eventId) => {
     const updatedEvents = countdownEvents.filter(
       (event) => event.id !== eventId
     );
     setCountdownEvents(updatedEvents);
 
-    // 手動保存到 Firebase
-    if (user) {
-      try {
-        await setDoc(
-          doc(db, "userSettings", user.uid),
-          {
-            startDate: startDate.toISOString(),
-            monthlyBudgets,
-            countdownEvents: updatedEvents,
-            updatedAt: Timestamp.now(),
-          },
-          { merge: true }
-        );
-      } catch (error) {
-        console.error("Failed to delete countdown event:", error);
-      }
-    }
+    // 使用防抖保存
+    saveUserSettings();
   };
 
   return (
@@ -430,25 +438,8 @@ const Journal = ({ idolName, user }) => {
                     now.getMonth() + 1,
                     Number(e.target.value)
                   );
-                }}
-                onBlur={async () => {
-                  // 當輸入框失焦時保存到 Firebase
-                  if (user) {
-                    try {
-                      await setDoc(
-                        doc(db, "userSettings", user.uid),
-                        {
-                          startDate: startDate.toISOString(),
-                          monthlyBudgets,
-                          countdownEvents,
-                          updatedAt: Timestamp.now(),
-                        },
-                        { merge: true }
-                      );
-                    } catch (error) {
-                      console.error("Failed to save budget:", error);
-                    }
-                  }
+                  // 使用防抖保存（移除 onBlur，改用自動防抖保存）
+                  saveUserSettings();
                 }}
                 placeholder="0"
               />
@@ -676,9 +667,11 @@ const Journal = ({ idolName, user }) => {
                       <input
                         type="number"
                         value={getMonthlyBudget(year, month)}
-                        onChange={(e) =>
-                          setMonthlyBudget(year, month, Number(e.target.value))
-                        }
+                        onChange={(e) => {
+                          setMonthlyBudget(year, month, Number(e.target.value));
+                          // 使用防抖保存（1秒內只保存一次）
+                          saveUserSettings();
+                        }}
                         placeholder="0"
                       />
                     </div>
@@ -696,10 +689,13 @@ const Journal = ({ idolName, user }) => {
                   type="button"
                   className="btn-primary"
                   onClick={async () => {
+                    // 先關閉模態框
                     setShowBudgetManager(false);
-                    // 保存預算設定到 Firebase
-                    if (user) {
+
+                    // 立即保存（跳過防抖，確保關閉時數據已保存）
+                    if (user && !isSavingRef.current) {
                       try {
+                        isSavingRef.current = true;
                         await setDoc(
                           doc(db, "userSettings", user.uid),
                           {
@@ -710,8 +706,11 @@ const Journal = ({ idolName, user }) => {
                           },
                           { merge: true }
                         );
+                        console.log("✅ 預算設定已保存");
                       } catch (error) {
-                        console.error("Failed to save budget settings:", error);
+                        console.error("❌ 保存預算設定失敗:", error);
+                      } finally {
+                        isSavingRef.current = false;
                       }
                     }
                   }}
