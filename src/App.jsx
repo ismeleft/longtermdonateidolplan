@@ -5,6 +5,7 @@ import "./App.css";
 import Welcome from "./views/welcome/Welcome";
 import Setup from "./views/setup/Setup";
 import Journal from "./views/journal/Journal";
+import YearlyReview from "./views/yearlyreview/YearlyReview";
 import Auth from "./views/auth/Auth";
 import Loading from "./components/Loading";
 import IdolSidebar from "./components/IdolSidebar/IdolSidebar";
@@ -119,6 +120,10 @@ const App = () => {
 
   const handleJournalClick = () => {
     setPage("journal");
+  };
+
+  const handleYearlyReviewClick = () => {
+    setPage("yearlyreview");
   };
 
   const handleBackToWelcome = () => {
@@ -304,6 +309,7 @@ const App = () => {
               onStart={handleStart}
               userData={userData}
               onJournalClick={handleJournalClick}
+              onYearlyReviewClick={handleYearlyReviewClick}
               user={user}
               onUserDataUpdate={handleUserDataUpdate}
             />
@@ -312,7 +318,14 @@ const App = () => {
             <Setup onComplete={handleSetupComplete} user={user} />
           )}
           {page === "journal" && (
-            <Journal idolName={userData?.idolName} user={user} />
+            <Journal
+              idolName={userData?.idolName}
+              user={user}
+              onYearlyReviewClick={handleYearlyReviewClick}
+            />
+          )}
+          {page === "yearlyreview" && (
+            <YearlyReview idolName={userData?.idolName} user={user} />
           )}
         </AnimatePresence>
       </div>

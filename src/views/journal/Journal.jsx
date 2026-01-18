@@ -3,6 +3,8 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { db } from "../../firebase";
 import PieChart from "../../components/PieChart";
+import "../../shared.css";
+import "./Journal.css";
 import {
   collection,
   addDoc,
@@ -17,7 +19,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 
-const Journal = ({ idolName, user }) => {
+const Journal = ({ idolName, user, onYearlyReviewClick }) => {
   const [expenses, setExpenses] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [startDate, setStartDate] = useState(new Date());
@@ -395,6 +397,34 @@ const Journal = ({ idolName, user }) => {
         <h1 className="app-title">{idolName} Patronage Journal</h1>
         <div className="header-stats">
           <span className="days-count">{calculateDuration()} days</span>
+          {onYearlyReviewClick && (
+            <button
+              className="yearly-review-link"
+              onClick={onYearlyReviewClick}
+              style={{
+                marginLeft: "1rem",
+                padding: "0.5rem 1rem",
+                background: "var(--accent-gold)",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontSize: "0.85rem",
+                fontWeight: "500",
+                transition: "all 0.2s ease",
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = "var(--accent)";
+                e.target.style.transform = "translateY(-1px)";
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = "var(--accent-gold)";
+                e.target.style.transform = "translateY(0)";
+              }}
+            >
+              Yearly Review
+            </button>
+          )}
         </div>
       </header>
 
